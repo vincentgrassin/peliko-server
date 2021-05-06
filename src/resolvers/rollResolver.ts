@@ -1,13 +1,12 @@
-import { Roll } from "../entities/Roll";
-import { Resolver, Query, Ctx, Arg, Mutation } from "type-graphql";
-import { MyContext } from "../types";
+import { Roll, RollInputType } from "../entities/Roll";
+import { Resolver, Query, Arg, Mutation } from "type-graphql";
+import { Participant } from "../entities/Participant";
+// import { MyContext } from "../types";
 
 @Resolver()
 export class RollResolver {
   @Query(() => [Roll]) // graph ql type
   rolls(): Promise<Roll[]> {
-    console.log("executing");
-    // orm type
     return Roll.find();
   }
 
@@ -17,18 +16,29 @@ export class RollResolver {
   }
 
   @Mutation(() => Roll)
-  async createRoll(
-    @Arg("roll") roll: Roll
-    // @Ctx() {}: MyContext to bind with our context
-  ): Promise<Roll> {
-    const newRoll = await Roll.create(roll).save();
+  async createRoll(@Arg("rollData") roll: RollInputType): Promise<Roll> {
+    const participants = await Promise.all(
+      roll.participants.map(async (p) => {
+        console.log(p);
+        return Participant.create(p).save();
+      })
+    );
+
+    // const newParticipant = await Participant.create(roll.participants).save();
+    const newRoll = new Roll();
+    newRoll.name = roll.name;
+    newRoll.participants = participants;
+    await newRoll.save();
+    // await Roll.create(roll).save();
     return newRoll;
   }
+
+  // @Ctx() {}: MyContext to bind with our context
 
   @Mutation(() => Roll, { nullable: true })
   async updateRoll(
     @Arg("id") id: number,
-    @Arg("name", () => String, { nullable: true }) name: string // pour mettre nullable
+    @Arg("name", () => String, { nullable: true }) name: string
   ): Promise<Roll | undefined> {
     const roll = await Roll.findOne(id);
     if (!roll) {

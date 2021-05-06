@@ -5,71 +5,88 @@ import {
   BaseEntity,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from "typeorm";
-import { Field, Int, ObjectType } from "type-graphql";
+import { Field, InputType, ObjectType } from "type-graphql";
+import { Participant, ParticipantInputType } from "./Participant";
 
-@ObjectType() // convert class to a type
+@ObjectType()
 @Entity()
 export class Roll extends BaseEntity {
-  @Field(() => Int)
+  @Field()
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Field(() => String)
-  @Column() // add on object of config
+  @Field()
+  @Column()
   name!: string;
 
-  @Field(() => String)
+  @Field()
   @Column({
-    unique: true,
     nullable: true,
   })
   description: string;
 
-  @Field(() => String)
+  @Field()
   @Column({
-    unique: true,
     nullable: true,
   })
-  deliveryType: string;
+  deliveryType?: string;
 
-  @Field(() => Date)
+  @Field()
   @Column({
-    unique: true,
     nullable: true,
   })
   closingDate: Date;
 
-  @Field(() => Date)
+  @Field()
   @CreateDateColumn()
   creationDate: Date;
 
-  @Field(() => Date)
+  @Field()
   @UpdateDateColumn()
   updateDate: Date;
 
-  @Field(() => Int)
+  @Field()
   @Column({
-    unique: true,
     nullable: true,
   })
   pictureNumber: number;
 
-  @Field(() => Int)
+  @Field()
   @Column({
-    unique: true,
     nullable: true,
   })
   remainingPictures: number;
 
-  @Field(() => Boolean)
+  @Field()
   @Column({
-    unique: true,
     nullable: true,
   })
   openingStatus: boolean;
 
+  @OneToMany(() => Participant, (participant) => participant.roll)
+  participants: Participant[];
+
   // accessCodeRoll: string | undefined;
   // participants: Participant[] | undefined;
   // pictures: Picture[] | undefined;
+}
+
+@InputType()
+export class RollInputType {
+  @Field()
+  name!: string;
+
+  @Field({ nullable: true })
+  description?: string;
+
+  @Field({ nullable: true })
+  deliveryType?: string;
+
+  @Field({ nullable: true })
+  date: Date;
+
+  @Field(() => [ParticipantInputType], { nullable: true })
+  participants: ParticipantInputType[];
 }
