@@ -9,6 +9,7 @@ import {
 } from "typeorm";
 import { Field, InputType, ObjectType } from "type-graphql";
 import { Participant, ParticipantInputType } from "./Participant";
+import { defaultEntitiesValues } from "../constants";
 
 @ObjectType()
 @Entity()
@@ -50,27 +51,27 @@ export class Roll extends BaseEntity {
   @Field()
   @Column({
     nullable: true,
+    default: defaultEntitiesValues.pictureNumber,
   })
   pictureNumber: number;
 
   @Field()
   @Column({
     nullable: true,
+    default: defaultEntitiesValues.pictureNumber,
   })
   remainingPictures: number;
 
   @Field()
   @Column({
-    nullable: true,
+    default: true,
   })
-  openingStatus: boolean;
+  isOpen: boolean;
 
-  @OneToMany(() => Participant, (participant) => participant.roll)
+  @OneToMany(() => Participant, (participant) => participant.roll, {
+    cascade: true,
+  })
   participants: Participant[];
-
-  // accessCodeRoll: string | undefined;
-  // participants: Participant[] | undefined;
-  // pictures: Picture[] | undefined;
 }
 
 @InputType()
@@ -85,7 +86,7 @@ export class RollInputType {
   deliveryType?: string;
 
   @Field({ nullable: true })
-  date: Date;
+  closingDate: Date;
 
   @Field(() => [ParticipantInputType], { nullable: true })
   participants: ParticipantInputType[];

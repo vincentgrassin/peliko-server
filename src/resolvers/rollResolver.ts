@@ -2,6 +2,7 @@ import { Roll, RollInputType } from "../entities/Roll";
 import { Resolver, Query, Arg, Mutation } from "type-graphql";
 import { Participant } from "../entities/Participant";
 // import { MyContext } from "../types";
+// @Ctx() {}: MyContext to bind with our context
 
 @Resolver()
 export class RollResolver {
@@ -18,22 +19,15 @@ export class RollResolver {
   @Mutation(() => Roll)
   async createRoll(@Arg("rollData") roll: RollInputType): Promise<Roll> {
     const participants = await Promise.all(
-      roll.participants.map(async (p) => {
-        console.log(p);
-        return Participant.create(p).save();
-      })
+      roll.participants.map(async (p) => Participant.create(p))
     );
 
-    // const newParticipant = await Participant.create(roll.participants).save();
-    const newRoll = new Roll();
-    newRoll.name = roll.name;
-    newRoll.participants = participants;
-    await newRoll.save();
-    // await Roll.create(roll).save();
+    const newRoll = await Roll.create({
+      ...roll,
+      participants: participants,
+    }).save();
     return newRoll;
   }
-
-  // @Ctx() {}: MyContext to bind with our context
 
   @Mutation(() => Roll, { nullable: true })
   async updateRoll(
