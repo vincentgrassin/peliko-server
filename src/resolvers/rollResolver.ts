@@ -1,7 +1,7 @@
 import { Roll, RollInputType } from "../entities/Roll";
 import { Resolver, Query, Arg, Mutation } from "type-graphql";
 import { Participant } from "../entities/Participant";
-import { getRepository } from "typeorm";
+import { createQueryBuilder, getConnection, getRepository } from "typeorm";
 // import { MyContext } from "../types";
 // @Ctx() {}: MyContext to bind with our context
 
@@ -14,13 +14,14 @@ export class RollResolver {
 
   @Query(() => Roll, { nullable: true })
   async roll(@Arg("id") id: number): Promise<any | undefined> {
-    const rolls = await getRepository(Roll).findOne(
-      { id },
-      {
-        relations: ["participants"],
-      }
-    );
-    return rolls;
+    const roll = await createQueryBuilder("roll")
+      .select("roll")
+      .from(Roll, "roll")
+      .leftJoinAndSelect("roll.participants", "participant")
+      .where("roll.id = :id", { id })
+      .getOne();
+
+    return roll;
   }
 
   @Mutation(() => Roll)
@@ -28,27 +29,30 @@ export class RollResolver {
     const participants = await Promise.all(
       roll.participants.map(async (p) => Participant.create(p))
     );
-
+    console.log("CREATE PARTICIPANTS", participants);
     const newRoll = await Roll.create({
       ...roll,
       participants: participants,
     }).save();
+    console.log("NEW ROLL", newRoll);
     return newRoll;
   }
 
   @Mutation(() => Roll, { nullable: true })
   async updateRoll(
     @Arg("id") id: number,
-    @Arg("name", () => String, { nullable: true }) name: string
+    @Arg("rollData") rollData: RollInputType
   ): Promise<Roll | undefined> {
     const roll = await Roll.findOne(id);
     if (!roll) {
       return undefined;
     }
-    if (typeof name !== "undefined") {
-      roll.name = name;
-      await Roll.update({ id }, { name });
-    }
+    const participants = await Promise.all(
+      rollData.participants.map(async (p) => Participant.create(p))
+    );
+    roll.participants = participants;
+    await roll.save();
+
     return roll;
   }
 

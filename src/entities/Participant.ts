@@ -37,14 +37,18 @@ export class Participant extends BaseEntity {
   @Column({
     default: false,
   })
-  hasJoinedRoll: boolean;
+  isActive: boolean;
 
   @Field()
   @Column()
   rollId: number;
 
   @Field((type) => Roll)
-  @ManyToOne(() => Roll, (roll) => roll.participants)
+  @ManyToOne(() => Roll, (roll) => roll.participants, {
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+    orphanedRowAction: "delete",
+  })
   roll: Roll;
 
   @Field(() => String)
