@@ -1,6 +1,7 @@
 import { Roll, RollInputType } from "../entities/Roll";
 import { Resolver, Query, Arg, Mutation } from "type-graphql";
 import { Participant } from "../entities/Participant";
+import { getRepository } from "typeorm";
 // import { MyContext } from "../types";
 // @Ctx() {}: MyContext to bind with our context
 
@@ -12,8 +13,14 @@ export class RollResolver {
   }
 
   @Query(() => Roll, { nullable: true })
-  roll(@Arg("id") id: number): Promise<Roll | undefined> {
-    return Roll.findOne(id);
+  async roll(@Arg("id") id: number): Promise<any | undefined> {
+    const rolls = await getRepository(Roll).findOne(
+      { id },
+      {
+        relations: ["participants"],
+      }
+    );
+    return rolls;
   }
 
   @Mutation(() => Roll)

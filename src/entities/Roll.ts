@@ -41,14 +41,6 @@ export class Roll extends BaseEntity {
   closingDate: Date;
 
   @Field()
-  @CreateDateColumn()
-  creationDate: Date;
-
-  @Field()
-  @UpdateDateColumn()
-  updateDate: Date;
-
-  @Field()
   @Column({
     nullable: true,
     default: defaultEntitiesValues.pictureNumber,
@@ -68,10 +60,19 @@ export class Roll extends BaseEntity {
   })
   isOpen: boolean;
 
+  @Field((type) => [Participant])
   @OneToMany(() => Participant, (participant) => participant.roll, {
     cascade: true,
   })
   participants: Participant[];
+
+  @Field()
+  @CreateDateColumn()
+  creationDate: Date;
+
+  @Field()
+  @UpdateDateColumn()
+  updateDate: Date;
 }
 
 @InputType()

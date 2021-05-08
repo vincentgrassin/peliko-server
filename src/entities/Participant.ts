@@ -4,6 +4,8 @@ import {
   BaseEntity,
   ManyToOne,
   Column,
+  CreateDateColumn,
+  UpdateDateColumn,
 } from "typeorm";
 import { Field, InputType, ObjectType } from "type-graphql";
 import { Roll } from "./Roll";
@@ -37,8 +39,21 @@ export class Participant extends BaseEntity {
   })
   hasJoinedRoll: boolean;
 
+  @Field()
+  @Column()
+  rollId: number;
+
+  @Field((type) => Roll)
   @ManyToOne(() => Roll, (roll) => roll.participants)
   roll: Roll;
+
+  @Field(() => String)
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @Field(() => String)
+  @UpdateDateColumn()
+  updatedAt: Date;
 }
 
 @InputType()
