@@ -1,7 +1,8 @@
 import { Roll, RollInputType } from "../entities/Roll";
 import { Resolver, Query, Arg, Mutation } from "type-graphql";
 import { Participant } from "../entities/Participant";
-import { createQueryBuilder, getConnection, getRepository } from "typeorm";
+import { createQueryBuilder } from "typeorm";
+import { User } from "../entities/User";
 // import { MyContext } from "../types";
 // @Ctx() {}: MyContext to bind with our context
 
@@ -12,8 +13,19 @@ export class RollResolver {
     return Roll.find();
   }
 
+  @Query(() => [Roll])
+  async rollsByUser(@Arg("id") id: number): Promise<Roll[]> {
+    const rolls = await createQueryBuilder("roll")
+      .select("roll")
+      .from(Roll, "roll")
+      .leftJoinAndSelect("roll.participants", "participant")
+      .where("participant.userId = :id", { id })
+      .getMany();
+    return rolls; // /!\ return filtered participant array
+  }
+
   @Query(() => Roll, { nullable: true })
-  async roll(@Arg("id") id: number): Promise<any | undefined> {
+  async roll(@Arg("id") id: number): Promise<Roll | undefined> {
     const roll = await createQueryBuilder("roll")
       .select("roll")
       .from(Roll, "roll")
@@ -27,14 +39,22 @@ export class RollResolver {
   @Mutation(() => Roll)
   async createRoll(@Arg("rollData") roll: RollInputType): Promise<Roll> {
     const participants = await Promise.all(
-      roll.participants.map(async (p) => Participant.create(p))
+      roll.participants.map(async (p) => {
+        const user = await createQueryBuilder("user")
+          .select("user")
+          .from(User, "user")
+          .where("user.phoneNumber = :phoneNumber", {
+            phoneNumber: p.phoneNumber,
+          })
+          .getOne();
+
+        return Participant.create({ ...p, userId: user?.id });
+      })
     );
-    console.log("CREATE PARTICIPANTS", participants);
     const newRoll = await Roll.create({
       ...roll,
       participants: participants,
     }).save();
-    console.log("NEW ROLL", newRoll);
     return newRoll;
   }
 

@@ -9,6 +9,7 @@ import {
 } from "typeorm";
 import { Field, InputType, ObjectType } from "type-graphql";
 import { Roll } from "./Roll";
+import { User } from "./User";
 import { defaultEntitiesValues } from "../constants";
 
 @ObjectType()
@@ -17,10 +18,6 @@ export class Participant extends BaseEntity {
   @Field()
   @PrimaryGeneratedColumn()
   id!: number;
-
-  @Field()
-  @Column()
-  name!: string;
 
   @Field()
   @Column()
@@ -43,13 +40,28 @@ export class Participant extends BaseEntity {
   @Column()
   rollId: number;
 
-  @Field((type) => Roll)
+  @Field(() => Roll)
   @ManyToOne(() => Roll, (roll) => roll.participants, {
     onUpdate: "CASCADE",
     onDelete: "CASCADE",
     orphanedRowAction: "delete",
   })
   roll: Roll;
+
+  @Field()
+  @Column({
+    nullable: true,
+  })
+  userId: number;
+
+  @Field(() => User)
+  @ManyToOne(() => User, (user) => user.participants, {
+    onUpdate: "CASCADE",
+    onDelete: "CASCADE",
+    orphanedRowAction: "delete",
+    nullable: true,
+  })
+  user: User;
 
   @Field(() => String)
   @CreateDateColumn()
@@ -62,9 +74,6 @@ export class Participant extends BaseEntity {
 
 @InputType()
 export class ParticipantInputType {
-  @Field()
-  name!: string;
-
   @Field()
   phoneNumber!: string;
 }

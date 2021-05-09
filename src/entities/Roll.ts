@@ -60,7 +60,7 @@ export class Roll extends BaseEntity {
   })
   isOpen: boolean;
 
-  @Field((type) => [Participant])
+  @Field(() => [Participant])
   @OneToMany(() => Participant, (participant) => participant.roll, {
     cascade: true,
   })

@@ -7,12 +7,14 @@ import { RollResolver } from "./resolvers/rollResolver";
 import { createConnection } from "typeorm";
 import { Roll } from "./entities/Roll";
 import { Participant } from "./entities/Participant";
+import { User } from "./entities/User";
+import { UserResolver } from "./resolvers/userResolver";
 
 const main = async () => {
   console.log("main started");
   const connection = await createConnection({
     type: "postgres",
-    entities: [Roll, Participant],
+    entities: [Roll, Participant, User],
     database: "peliko2",
     username: "postgres",
     password: "bradgeek91",
@@ -29,7 +31,7 @@ const main = async () => {
     // init apollo server
     schema: await buildSchema({
       // build graphql schema
-      resolvers: [RollResolver],
+      resolvers: [RollResolver, UserResolver],
       validate: false,
     }),
     context: () => ({}), // bind a context if needed
