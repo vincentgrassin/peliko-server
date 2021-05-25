@@ -24,6 +24,22 @@ export class RollResolver {
     return rolls; // /!\ return filtered participant array
   }
 
+  @Query(() => [Roll])
+  async invitationRollsByUser(@Arg("id") id: number): Promise<Roll[]> {
+    const rolls = await createQueryBuilder("roll")
+      .select("roll")
+      .from(Roll, "roll")
+      .leftJoinAndSelect("roll.participants", "participant")
+      .where("participant.userId = :id", { id })
+      .andWhere("participant.isActive = false")
+      .andWhere("roll.closingDate > :date", {
+        date: new Date(),
+      })
+      .getMany();
+
+    return rolls;
+  }
+
   @Query(() => Roll, { nullable: true })
   async roll(@Arg("id") id: number): Promise<Roll | undefined> {
     const roll = await createQueryBuilder("roll")
