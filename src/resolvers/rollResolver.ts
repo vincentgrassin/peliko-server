@@ -14,14 +14,35 @@ export class RollResolver {
   }
 
   @Query(() => [Roll])
-  async rollsByUser(@Arg("id") id: number): Promise<Roll[]> {
-    const rolls = await createQueryBuilder("roll")
-      .select("roll")
-      .from(Roll, "roll")
-      .leftJoinAndSelect("roll.participants", "participant")
-      .where("participant.userId = :id", { id })
-      .getMany();
-    return rolls; // /!\ return filtered participant array
+  async rollsByUser(
+    @Arg("id") id: number,
+    @Arg("isOpenTab") isOpenTab: boolean
+  ): Promise<Roll[]> {
+    if (isOpenTab) {
+      const rolls = await createQueryBuilder("roll")
+        .select("roll")
+        .from(Roll, "roll")
+        .leftJoinAndSelect("roll.participants", "participant")
+        .where("participant.userId = :id", { id })
+        .andWhere("roll.closingDate > :date", {
+          date: new Date(),
+        })
+        .getMany();
+
+      return rolls; // /!\ return filtered participant array
+    } else {
+      const rolls = await createQueryBuilder("roll")
+        .select("roll")
+        .from(Roll, "roll")
+        .leftJoinAndSelect("roll.participants", "participant")
+        .where("participant.userId = :id", { id })
+        .andWhere("roll.closingDate <= :date", {
+          date: new Date(),
+        })
+        .getMany();
+
+      return rolls; // /!\ return filtered participant array
+    }
   }
 
   @Query(() => [Roll])
