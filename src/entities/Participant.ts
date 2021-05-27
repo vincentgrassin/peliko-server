@@ -76,4 +76,7 @@ export class Participant extends BaseEntity {
 export class ParticipantInputType {
   @Field()
   phoneNumber!: string;
+
+  @Field({ nullable: true })
+  name?: string;
 }
