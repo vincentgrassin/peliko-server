@@ -11,15 +11,17 @@ import { User } from "./entities/User";
 import { UserResolver } from "./resolvers/userResolver";
 import { PictureResolver } from "./resolvers/pictureResolver";
 import { Picture } from "./entities/Picture";
+import dotenv from "dotenv";
 
 const main = async () => {
   console.log("main started");
+  dotenv.config();
   const connection = await createConnection({
     type: "postgres",
     entities: [Roll, Participant, User, Picture],
-    database: "peliko2",
-    username: "postgres",
-    password: "bradgeek91",
+    database: process.env.DB_NAME,
+    username: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
     logging: true,
     synchronize: true,
   });
