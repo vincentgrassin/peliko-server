@@ -6,11 +6,13 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from "typeorm";
 import { Field, InputType, ObjectType } from "type-graphql";
 import { Roll } from "./Roll";
 import { User } from "./User";
 import { defaultEntitiesValues } from "../constants";
+import { Picture } from "./Picture";
 
 @ObjectType()
 @Entity()
@@ -62,6 +64,12 @@ export class Participant extends BaseEntity {
     nullable: true,
   })
   user: User;
+
+  @Field(() => [Picture])
+  @OneToMany(() => Picture, (picture) => picture.participant, {
+    cascade: true,
+  })
+  pictures: Picture[];
 
   @Field(() => String)
   @CreateDateColumn()

@@ -10,6 +10,7 @@ import {
 import { Field, InputType, ObjectType } from "type-graphql";
 import { Participant, ParticipantInputType } from "./Participant";
 import { defaultEntitiesValues } from "../constants";
+import { Picture } from "./Picture";
 
 @ObjectType()
 @Entity()
@@ -65,6 +66,12 @@ export class Roll extends BaseEntity {
     cascade: true,
   })
   participants: Participant[];
+
+  @Field(() => [Picture])
+  @OneToMany(() => Picture, (picture) => picture.roll, {
+    cascade: true,
+  })
+  pictures: Picture[];
 
   @Field()
   @CreateDateColumn()

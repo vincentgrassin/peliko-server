@@ -9,12 +9,14 @@ import { Roll } from "./entities/Roll";
 import { Participant } from "./entities/Participant";
 import { User } from "./entities/User";
 import { UserResolver } from "./resolvers/userResolver";
+import { PictureResolver } from "./resolvers/pictureResolver";
+import { Picture } from "./entities/Picture";
 
 const main = async () => {
   console.log("main started");
   const connection = await createConnection({
     type: "postgres",
-    entities: [Roll, Participant, User],
+    entities: [Roll, Participant, User, Picture],
     database: "peliko2",
     username: "postgres",
     password: "bradgeek91",
@@ -22,16 +24,14 @@ const main = async () => {
     synchronize: true,
   });
 
-  const app = express(); // init server
+  const app = express();
   app.listen(4000, () => {
     console.log("server started");
   });
 
   const apolloServer = new ApolloServer({
-    // init apollo server
     schema: await buildSchema({
-      // build graphql schema
-      resolvers: [RollResolver, UserResolver],
+      resolvers: [RollResolver, UserResolver, PictureResolver],
       validate: false,
     }),
     context: () => ({}), // bind a context if needed

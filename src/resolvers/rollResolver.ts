@@ -29,7 +29,7 @@ export class RollResolver {
         })
         .getMany();
 
-      return rolls; // /!\ return filtered participant array
+      return rolls; // /!\ return filtered participant array : to modify
     } else {
       const rolls = await createQueryBuilder("roll")
         .select("roll")
@@ -41,7 +41,7 @@ export class RollResolver {
         })
         .getMany();
 
-      return rolls; // /!\ return filtered participant array
+      return rolls; // /!\ return filtered participant array: to modify
     }
   }
 
