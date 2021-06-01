@@ -3,6 +3,7 @@ import { Resolver, Query, Arg, Mutation } from "type-graphql";
 import { Participant } from "../entities/Participant";
 import { createQueryBuilder } from "typeorm";
 import { User } from "../entities/User";
+import { userErrorMessages } from "../constants";
 // import { MyContext } from "../types";
 // @Ctx() {}: MyContext to bind with our context
 
@@ -24,6 +25,7 @@ export class RollResolver {
         .from(Roll, "roll")
         .leftJoinAndSelect("roll.participants", "participant")
         .where("participant.userId = :id", { id })
+        .andWhere("participant.isActive = true")
         .andWhere("roll.closingDate > :date", {
           date: new Date(),
         })
@@ -36,6 +38,7 @@ export class RollResolver {
         .from(Roll, "roll")
         .leftJoinAndSelect("roll.participants", "participant")
         .where("participant.userId = :id", { id })
+        .andWhere("participant.isActive = true")
         .andWhere("roll.closingDate <= :date", {
           date: new Date(),
         })
@@ -74,7 +77,24 @@ export class RollResolver {
   }
 
   @Mutation(() => Roll)
-  async createRoll(@Arg("rollData") roll: RollInputType): Promise<Roll> {
+  async createRoll(
+    @Arg("rollData") roll: RollInputType,
+    @Arg("userId") userId: number
+  ): Promise<Roll> {
+    const userAdmin = await User.findOne(userId);
+    if (!userAdmin) {
+      throw new Error(userErrorMessages.unrecognized);
+    }
+
+    roll.participants = [
+      ...roll.participants,
+      {
+        phoneNumber: userAdmin?.phoneNumber,
+        isActive: true,
+        isRollAdmin: true,
+      },
+    ];
+
     const participants = await Promise.all(
       roll.participants.map(async (p) => {
         const user = await createQueryBuilder("user")
@@ -88,6 +108,7 @@ export class RollResolver {
         return Participant.create({ ...p, userId: user?.id });
       })
     );
+
     const newRoll = await Roll.create({
       ...roll,
       participants: participants,

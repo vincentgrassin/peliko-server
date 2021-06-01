@@ -1,3 +1,4 @@
+import "dotenv/config";
 import "reflect-metadata";
 import { _prod } from "./constants";
 import express from "express";
@@ -11,11 +12,9 @@ import { User } from "./entities/User";
 import { UserResolver } from "./resolvers/userResolver";
 import { PictureResolver } from "./resolvers/pictureResolver";
 import { Picture } from "./entities/Picture";
-import dotenv from "dotenv";
 
 const main = async () => {
   console.log("main started");
-  dotenv.config();
   const connection = await createConnection({
     type: "postgres",
     entities: [Roll, Participant, User, Picture],

@@ -8,4 +8,6 @@ export const defaultEntitiesValues = {
 export const userErrorMessages = {
   existing: "Existing user",
   unrecognized: "Unrecognized user",
+  pictureUploadFailed: "Upload failed",
+  unabledToFind: "Unable To Find Data",
 };

@@ -3,6 +3,7 @@ import { Resolver, Arg, Mutation } from "type-graphql";
 import { createQueryBuilder } from "typeorm";
 import { Picture } from "../entities/Picture";
 import { Roll } from "../entities/Roll";
+import { userErrorMessages } from "../constants";
 
 @Resolver()
 export class PictureResolver {
@@ -23,7 +24,9 @@ export class PictureResolver {
 
     const roll = await Roll.findOne(rollId);
 
-    if (participant) {
+    if (participant && roll) {
+      roll.remainingPictures = roll?.remainingPictures - 1;
+      await roll.save();
       await Picture.create({
         cloudinaryPublicId: cloudinaryId,
         participant: participant,
@@ -31,7 +34,7 @@ export class PictureResolver {
       }).save();
       return true;
     } else {
-      return false;
+      throw new Error(userErrorMessages.pictureUploadFailed);
     }
   }
 }

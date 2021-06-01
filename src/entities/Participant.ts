@@ -39,6 +39,12 @@ export class Participant extends BaseEntity {
   isActive: boolean;
 
   @Field()
+  @Column({
+    default: false,
+  })
+  isRollAdmin: boolean;
+
+  @Field()
   @Column()
   rollId: number;
 
@@ -87,4 +93,8 @@ export class ParticipantInputType {
 
   @Field({ nullable: true })
   name?: string;
+
+  isActive?: boolean;
+
+  isRollAdmin?: boolean;
 }
