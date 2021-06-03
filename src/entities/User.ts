@@ -7,12 +7,12 @@ import {
   UpdateDateColumn,
   OneToMany,
 } from "typeorm";
-import { Field, InputType, ObjectType } from "type-graphql";
+import { Field, InputType, ObjectType, Int } from "type-graphql";
 import { Participant } from "./Participant";
 @ObjectType()
 @Entity()
 export class User extends BaseEntity {
-  @Field()
+  @Field(() => Int)
   @PrimaryGeneratedColumn()
   id!: number;
 
@@ -23,6 +23,10 @@ export class User extends BaseEntity {
   @Field()
   @Column()
   password!: string;
+
+  @Field()
+  @Column({ nullable: true })
+  avatarCloudinaryPublicId?: string;
 
   @Field()
   @Column()
