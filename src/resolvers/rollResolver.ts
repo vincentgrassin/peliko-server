@@ -1,4 +1,5 @@
 import { Roll, RollInputType } from "../entities/Roll";
+import { InvitationRollType } from "../entities/objectType";
 import { Resolver, Query, Arg, Mutation } from "type-graphql";
 import { Participant } from "../entities/Participant";
 import { createQueryBuilder } from "typeorm";
@@ -48,8 +49,10 @@ export class RollResolver {
     }
   }
 
-  @Query(() => [Roll])
-  async invitationRollsByUser(@Arg("id") id: number): Promise<Roll[]> {
+  @Query(() => [InvitationRollType])
+  async invitationRollsByUser(
+    @Arg("id") id: number
+  ): Promise<InvitationRollType[]> {
     const rolls = await createQueryBuilder("roll")
       .select("roll")
       .from(Roll, "roll")
@@ -60,8 +63,18 @@ export class RollResolver {
         date: new Date(),
       })
       .getMany();
+    const invitationRolls: InvitationRollType[] = await Promise.all(
+      rolls.map(async (roll) => {
+        const participantAdmin = roll.participants.find((p) => p.isRollAdmin);
+        const userAdmin = await User.findOne(participantAdmin?.userId);
+        return {
+          roll: roll,
+          admin: userAdmin,
+        };
+      })
+    );
 
-    return rolls;
+    return invitationRolls;
   }
 
   @Query(() => Roll, { nullable: true })
