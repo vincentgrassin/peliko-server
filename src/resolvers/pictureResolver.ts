@@ -3,7 +3,7 @@ import { Resolver, Arg, Mutation } from "type-graphql";
 import { createQueryBuilder } from "typeorm";
 import { Picture } from "../entities/Picture";
 import { Roll } from "../entities/Roll";
-import { userErrorMessages } from "../constants";
+import { errorMessages } from "../constants";
 
 @Resolver()
 export class PictureResolver {
@@ -13,8 +13,6 @@ export class PictureResolver {
     @Arg("userId") userId: number,
     @Arg("rollId") rollId: number
   ): Promise<boolean> {
-    console.log(userId, cloudinaryId, rollId);
-
     const participant = await createQueryBuilder("participant")
       .select("participant")
       .from(Participant, "participant")
@@ -34,7 +32,7 @@ export class PictureResolver {
       }).save();
       return true;
     } else {
-      throw new Error(userErrorMessages.pictureUploadFailed);
+      throw new Error(errorMessages.pictureUploadFailed);
     }
   }
 }

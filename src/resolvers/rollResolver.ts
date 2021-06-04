@@ -3,7 +3,7 @@ import { Resolver, Query, Arg, Mutation } from "type-graphql";
 import { Participant } from "../entities/Participant";
 import { createQueryBuilder } from "typeorm";
 import { User } from "../entities/User";
-import { userErrorMessages } from "../constants";
+import { errorMessages } from "../constants";
 // import { MyContext } from "../types";
 // @Ctx() {}: MyContext to bind with our context
 
@@ -83,7 +83,7 @@ export class RollResolver {
   ): Promise<Roll> {
     const userAdmin = await User.findOne(userId);
     if (!userAdmin) {
-      throw new Error(userErrorMessages.unrecognized);
+      throw new Error(errorMessages.unrecognizedUser);
     }
 
     roll.participants = [

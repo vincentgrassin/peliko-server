@@ -61,6 +61,13 @@ export class Roll extends BaseEntity {
   })
   isOpen: boolean;
 
+  @Field()
+  @Column({
+    nullable: true,
+    default: defaultEntitiesValues.rollAccessCode,
+  })
+  accessCode: string;
+
   @Field(() => [Participant])
   @OneToMany(() => Participant, (participant) => participant.roll, {
     cascade: true,

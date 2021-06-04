@@ -2,7 +2,7 @@ import { User, UserInputType } from "../entities/User";
 import { Resolver, Query, Arg, Mutation } from "type-graphql";
 import { Participant } from "../entities/Participant";
 import { createQueryBuilder } from "typeorm";
-import { userErrorMessages } from "../constants";
+import { errorMessages } from "../constants";
 
 @Resolver()
 export class UserResolver {
@@ -32,7 +32,7 @@ export class UserResolver {
       })
       .getOne();
 
-    if (existingUser) throw new Error(userErrorMessages.existing);
+    if (existingUser) throw new Error(errorMessages.existingUser);
 
     const newUser = await User.create({
       ...user,
@@ -50,13 +50,6 @@ export class UserResolver {
     });
     return newUser;
   }
-
-  //   @Mutation(() => User, { nullable: true })
-  //   async updateUser(
-  //     @Arg("UserData") userData: UserInputType
-  //   ): Promise<User | undefined> {
-  //     return User;
-  //   }
 
   @Mutation(() => Boolean)
   async deleteUser(@Arg("id") id: number): Promise<boolean> {
