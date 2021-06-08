@@ -1,5 +1,6 @@
 import "dotenv/config";
 import "reflect-metadata";
+import cookieParser from "cookie-parser";
 import { _prod } from "./constants";
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
@@ -13,6 +14,9 @@ import { User } from "./entities/User";
 import { UserResolver } from "./resolvers/userResolver";
 import { Picture } from "./entities/Picture";
 import { PictureResolver } from "./resolvers/pictureResolver";
+import { verify } from "jsonwebtoken";
+import { createAccessToken, createRefreshToken } from "./auth";
+import { sendRefreshToken } from "./sendRefreshToken";
 
 const main = async () => {
   console.log("main started");
@@ -27,6 +31,32 @@ const main = async () => {
   });
 
   const app = express();
+  app.use(cookieParser());
+  app.post("/refresh_token", async (req, res) => {
+    const token = req.cookies.jid;
+    if (!token) {
+      return res.send({ ok: false, accessToken: "" });
+    }
+    let payload: any = null;
+    try {
+      payload = verify(token, process.env.REFRESH_TOKEN_SECRET!);
+    } catch (e) {
+      console.log(e);
+      return res.send({ ok: false, accessToken: "" });
+    }
+    const user = await User.findOne({ id: payload.userId });
+    if (!user) {
+      return res.send({ ok: false, accessToken: "" });
+    }
+
+    if (user.tokenVersion !== payload.tokenVersion) {
+      return res.send({ ok: false, accessToken: "" });
+    }
+
+    sendRefreshToken(res, createRefreshToken(user));
+    return res.send({ ok: true, accessToken: createAccessToken(user) });
+  });
+
   app.listen(4000, () => {
     console.log("server started");
   });
@@ -41,7 +71,7 @@ const main = async () => {
       ],
       validate: false,
     }),
-    context: () => ({}), // bind a context if needed
+    context: ({ req, res }) => ({ req, res }),
   });
   apolloServer.applyMiddleware({ app });
 };

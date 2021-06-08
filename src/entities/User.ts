@@ -20,7 +20,6 @@ export class User extends BaseEntity {
   @Column()
   name!: string;
 
-  @Field()
   @Column()
   password!: string;
 
@@ -31,6 +30,10 @@ export class User extends BaseEntity {
   @Field()
   @Column()
   phoneNumber!: string;
+
+  @Field()
+  @Column("int", { default: 0 })
+  tokenVersion: number;
 
   @Field(() => [Participant])
   @OneToMany(() => Participant, (participant) => participant.user, {

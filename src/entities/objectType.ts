@@ -9,3 +9,9 @@ export class InvitationRollType {
   @Field(() => User)
   admin: User | undefined;
 }
+
+@ObjectType()
+export class LoginType {
+  @Field()
+  accessToken: string;
+}

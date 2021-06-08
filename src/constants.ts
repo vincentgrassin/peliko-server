@@ -12,5 +12,7 @@ export const errorMessages = {
   unrecognizedParticipant: "peliko: Unrecognized participant",
   pictureUploadFailed: "peliko: Upload failed",
   unabledToFind: "peliko: Unable To Find Data",
-  wrongRollAccessCode: "peliko :Wrong access code",
+  wrongRollAccessCode: "peliko : Wrong access code",
+  invalidPassword: "peliko : Invalid password",
+  notAuthenticated: "peliko : Not authenticated",
 };
