@@ -14,7 +14,6 @@ import { LoginType } from "../entities/objectType";
 import { MyContext } from "../MyContext";
 import { createAccessToken, createRefreshToken } from "../auth";
 import { isAuth } from "../isAuth";
-import { sendRefreshToken } from "../sendRefreshToken";
 
 @Resolver()
 export class UserResolver {
@@ -26,7 +25,6 @@ export class UserResolver {
   @Query(() => String)
   @UseMiddleware(isAuth)
   bye(@Ctx() { payload }: MyContext) {
-    console.log(payload);
     return `${payload?.userId}`;
   }
 
@@ -44,8 +42,7 @@ export class UserResolver {
   @Mutation(() => LoginType)
   async login(
     @Arg("password") password: string,
-    @Arg("phoneNumber") phoneNumber: string,
-    @Ctx() { res }: MyContext
+    @Arg("phoneNumber") phoneNumber: string
   ): Promise<LoginType> {
     const user = await User.findOne({ where: { phoneNumber } });
     if (!user) {
@@ -55,10 +52,9 @@ export class UserResolver {
       throw new Error(errorMessages.invalidPassword);
     }
 
-    sendRefreshToken(res, createRefreshToken(user));
-
     return {
       accessToken: createAccessToken(user),
+      refreshToken: createRefreshToken(user),
     };
   }
 

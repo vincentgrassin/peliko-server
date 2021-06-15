@@ -14,4 +14,7 @@ export class InvitationRollType {
 export class LoginType {
   @Field()
   accessToken: string;
+
+  @Field()
+  refreshToken: string;
 }

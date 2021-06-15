@@ -1,10 +1,11 @@
 import { Roll, RollInputType } from "../entities/Roll";
 import { InvitationRollType } from "../entities/objectType";
-import { Resolver, Query, Arg, Mutation } from "type-graphql";
+import { Resolver, Query, Arg, Mutation, Ctx } from "type-graphql";
 import { Participant } from "../entities/Participant";
 import { createQueryBuilder } from "typeorm";
 import { User } from "../entities/User";
 import { errorMessages } from "../constants";
+import { MyContext } from "../MyContext";
 // import { MyContext } from "../types";
 // @Ctx() {}: MyContext to bind with our context
 
@@ -19,7 +20,9 @@ export class RollResolver {
   async rollsByUser(
     @Arg("id") id: number,
     @Arg("isOpenTab") isOpenTab: boolean
+    // @Ctx() { payload }: MyContext
   ): Promise<Roll[]> {
+    // console.log("PAYLOF",{payload});
     if (isOpenTab) {
       const rolls = await createQueryBuilder("roll")
         .select("roll")
