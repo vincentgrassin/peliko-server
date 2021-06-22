@@ -1,17 +1,25 @@
 import { Roll } from "../entities/Roll";
-import { Resolver, Arg, Mutation } from "type-graphql";
+import { Resolver, Arg, Mutation, Ctx, UseMiddleware } from "type-graphql";
 import { Participant } from "../entities/Participant";
 import { createQueryBuilder } from "typeorm";
 import { errorMessages } from "../constants";
+import { isAuth } from "../isAuth";
+import { MyContext } from "../MyContext";
 
 @Resolver()
 export class ParticipantResolver {
   @Mutation(() => Boolean)
+  @UseMiddleware(isAuth)
   async joinRoll(
-    @Arg("userId") userId: number,
     @Arg("rollId") rollId: number,
-    @Arg("accessCode") accessCode: string
+    @Arg("accessCode") accessCode: string,
+    @Ctx() { payload }: MyContext
   ): Promise<boolean> {
+    if (!payload) {
+      throw new Error(errorMessages.unabledToFind);
+    }
+    const { userId } = payload;
+
     const participant = await createQueryBuilder("participant")
       .select("participant")
       .from(Participant, "participant")
@@ -30,10 +38,16 @@ export class ParticipantResolver {
   }
 
   @Mutation(() => Boolean)
+  @UseMiddleware(isAuth)
   async declineRollInvitation(
-    @Arg("userId") userId: number,
-    @Arg("rollId") rollId: number
+    @Arg("rollId") rollId: number,
+    @Ctx() { payload }: MyContext
   ): Promise<boolean> {
+    if (!payload) {
+      throw new Error(errorMessages.unabledToFind);
+    }
+    const { userId } = payload;
+
     const participant = await createQueryBuilder("participant")
       .select("participant")
       .from(Participant, "participant")

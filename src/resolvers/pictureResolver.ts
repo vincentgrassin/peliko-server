@@ -1,18 +1,25 @@
 import { Participant } from "../entities/Participant";
-import { Resolver, Arg, Mutation } from "type-graphql";
+import { Resolver, Arg, Mutation, UseMiddleware, Ctx } from "type-graphql";
 import { createQueryBuilder } from "typeorm";
 import { Picture } from "../entities/Picture";
 import { Roll } from "../entities/Roll";
 import { errorMessages } from "../constants";
+import { isAuth } from "../isAuth";
+import { MyContext } from "src/MyContext";
 
 @Resolver()
 export class PictureResolver {
   @Mutation(() => Boolean)
+  @UseMiddleware(isAuth)
   async uploadPicture(
     @Arg("cloudinaryId") cloudinaryId: string,
-    @Arg("userId") userId: number,
-    @Arg("rollId") rollId: number
+    @Arg("rollId") rollId: number,
+    @Ctx() { payload }: MyContext
   ): Promise<boolean> {
+    if (!payload) {
+      throw new Error(errorMessages.unabledToFind);
+    }
+    const { userId } = payload;
     const participant = await createQueryBuilder("participant")
       .select("participant")
       .from(Participant, "participant")

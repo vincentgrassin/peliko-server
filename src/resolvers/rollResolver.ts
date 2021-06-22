@@ -15,6 +15,10 @@ import { errorMessages } from "../constants";
 import { MyContext } from "../MyContext";
 import { isAuth } from "../isAuth";
 
+// TO DO
+// getRolls /!\ return filtered participant array: to modify (pas la bonne liste de participants)
+// createRoll /!\ le front doit faire un check d'emptiness sur les numero de tel
+
 @Resolver()
 export class RollResolver {
   @Query(() => [Roll]) // graph ql type
@@ -57,36 +61,8 @@ export class RollResolver {
         })
         .getMany();
 
-      return rolls; // /!\ return filtered participant array: to modify
+      return rolls;
     }
-  }
-
-  @Query(() => [InvitationRollType])
-  async invitationRollsByUser(
-    @Arg("id") id: number
-  ): Promise<InvitationRollType[]> {
-    const rolls = await createQueryBuilder("roll")
-      .select("roll")
-      .from(Roll, "roll")
-      .leftJoinAndSelect("roll.participants", "participant")
-      .where("participant.userId = :id", { id })
-      .andWhere("participant.isActive = false")
-      .andWhere("roll.closingDate > :date", {
-        date: new Date(),
-      })
-      .getMany();
-    const invitationRolls: InvitationRollType[] = await Promise.all(
-      rolls.map(async (roll) => {
-        const participantAdmin = roll.participants.find((p) => p.isRollAdmin);
-        const userAdmin = await User.findOne(participantAdmin?.userId);
-        return {
-          roll: roll,
-          admin: userAdmin,
-        };
-      })
-    );
-
-    return invitationRolls;
   }
 
   @Query(() => Roll, { nullable: true })
@@ -102,10 +78,15 @@ export class RollResolver {
   }
 
   @Mutation(() => Roll)
+  @UseMiddleware(isAuth)
   async createRoll(
     @Arg("rollData") roll: RollInputType,
-    @Arg("userId") userId: number
+    @Ctx() { payload }: MyContext
   ): Promise<Roll> {
+    if (!payload) {
+      throw new Error(errorMessages.unabledToFind);
+    }
+    const { userId } = payload;
     const userAdmin = await User.findOne(userId);
     if (!userAdmin) {
       throw new Error(errorMessages.unrecognizedUser);
@@ -167,5 +148,38 @@ export class RollResolver {
     } catch (e) {
       return false;
     }
+  }
+
+  @Query(() => [InvitationRollType])
+  @UseMiddleware(isAuth)
+  async invitationRollsByUser(
+    @Ctx() { payload }: MyContext
+  ): Promise<InvitationRollType[]> {
+    if (!payload) {
+      throw new Error(errorMessages.unabledToFind);
+    }
+    const { userId } = payload;
+    const rolls = await createQueryBuilder("roll")
+      .select("roll")
+      .from(Roll, "roll")
+      .leftJoinAndSelect("roll.participants", "participant")
+      .where("participant.userId = :userId", { userId })
+      .andWhere("participant.isActive = false")
+      .andWhere("roll.closingDate > :date", {
+        date: new Date(),
+      })
+      .getMany();
+    const invitationRolls: InvitationRollType[] = await Promise.all(
+      rolls.map(async (roll) => {
+        const participantAdmin = roll.participants.find((p) => p.isRollAdmin);
+        const userAdmin = await User.findOne(participantAdmin?.userId);
+        return {
+          roll: roll,
+          admin: userAdmin,
+        };
+      })
+    );
+
+    return invitationRolls;
   }
 }

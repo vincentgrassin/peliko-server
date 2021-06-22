@@ -4,7 +4,6 @@ import { errorMessages } from "./constants";
 import { MyContext } from "./MyContext";
 
 export const isAuth: MiddlewareFn<MyContext> = ({ context }, next) => {
-  console.log("////// IS AUTH", context.req.headers);
   const authorization = context.req.headers["authorization"];
   if (!authorization) {
     throw new Error(errorMessages.notAuthenticated);
