@@ -1,13 +1,19 @@
 import { Roll, RollInputType } from "../entities/Roll";
 import { InvitationRollType } from "../entities/objectType";
-import { Resolver, Query, Arg, Mutation, Ctx } from "type-graphql";
+import {
+  Resolver,
+  Query,
+  Arg,
+  Mutation,
+  Ctx,
+  UseMiddleware,
+} from "type-graphql";
 import { Participant } from "../entities/Participant";
 import { createQueryBuilder } from "typeorm";
 import { User } from "../entities/User";
 import { errorMessages } from "../constants";
 import { MyContext } from "../MyContext";
-// import { MyContext } from "../types";
-// @Ctx() {}: MyContext to bind with our context
+import { isAuth } from "../isAuth";
 
 @Resolver()
 export class RollResolver {
@@ -17,12 +23,15 @@ export class RollResolver {
   }
 
   @Query(() => [Roll])
+  @UseMiddleware(isAuth)
   async rollsByUser(
-    @Arg("id") id: number,
-    @Arg("isOpenTab") isOpenTab: boolean
-    // @Ctx() { payload }: MyContext
+    @Arg("isOpenTab") isOpenTab: boolean,
+    @Ctx() { payload }: MyContext
   ): Promise<Roll[]> {
-    // console.log("PAYLOF",{payload});
+    if (!payload) {
+      throw new Error(errorMessages.unabledToFind);
+    }
+    const { userId: id } = payload;
     if (isOpenTab) {
       const rolls = await createQueryBuilder("roll")
         .select("roll")

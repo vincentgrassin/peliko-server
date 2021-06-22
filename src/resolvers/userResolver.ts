@@ -22,12 +22,6 @@ export class UserResolver {
     return User.find();
   }
 
-  @Query(() => String)
-  @UseMiddleware(isAuth)
-  bye(@Ctx() { payload }: MyContext) {
-    return `${payload?.userId}`;
-  }
-
   @Query(() => User, { nullable: true })
   async user(@Arg("id") id: number): Promise<User | undefined> {
     const user = await createQueryBuilder("user")
