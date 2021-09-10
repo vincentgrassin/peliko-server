@@ -7,7 +7,7 @@ import {
   UpdateDateColumn,
   OneToMany,
 } from "typeorm";
-import { Field, InputType, ObjectType, Int } from "type-graphql";
+import { Field, ObjectType, Int } from "type-graphql";
 import { Participant } from "./Participant";
 @ObjectType()
 @Entity()
@@ -48,16 +48,4 @@ export class User extends BaseEntity {
   @Field(() => String)
   @UpdateDateColumn()
   updatedAt: Date;
-}
-
-@InputType()
-export class UserInputType {
-  @Field()
-  name!: string;
-
-  @Field()
-  phoneNumber!: string;
-
-  @Field()
-  password!: string;
 }

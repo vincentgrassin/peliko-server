@@ -74,6 +74,7 @@ export class Participant extends BaseEntity {
   @Field(() => [Picture])
   @OneToMany(() => Picture, (picture) => picture.participant, {
     cascade: true,
+    nullable: true,
   })
   pictures: Picture[];
 

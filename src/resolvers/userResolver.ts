@@ -1,4 +1,4 @@
-import { User, UserInputType } from "../entities/User";
+import { User } from "../entities/User";
 import {
   Resolver,
   Query,
@@ -52,8 +52,13 @@ export class UserResolver {
     };
   }
 
-  @Mutation(() => User)
-  async createUser(@Arg("user") user: UserInputType): Promise<User> {
+  @Mutation(() => LoginType)
+  async createUser(
+    @Arg("name") name: string,
+    @Arg("password") password: string,
+    @Arg("phoneNumber") phoneNumber: string
+  ): Promise<LoginType> {
+    const user = { name, password, phoneNumber };
     const existingUser = await createQueryBuilder("user")
       .select("user")
       .from(User, "user")
@@ -81,7 +86,10 @@ export class UserResolver {
       p.userId = newUser.id;
       p.save();
     });
-    return newUser;
+    return {
+      accessToken: createAccessToken(newUser),
+      refreshToken: createRefreshToken(newUser),
+    };
   }
 
   @Mutation(() => Boolean)
