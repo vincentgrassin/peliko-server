@@ -14,9 +14,9 @@ import { User } from "../entities/User";
 import { errorMessages } from "../constants";
 import { MyContext } from "../MyContext";
 import { isAuth } from "../isAuth";
+import { getRollWithAllParticipants } from "./queriesHelpers";
 
 // TO DO
-// getRolls /!\ return filtered participant array: to modify (pas la bonne liste de participants)
 // createRoll /!\ le front doit faire un check d'emptiness sur les numero de tel
 
 @Resolver()
@@ -31,38 +31,36 @@ export class RollResolver {
   async rollsByUser(
     @Arg("isOpenTab") isOpenTab: boolean,
     @Ctx() { payload }: MyContext
-  ): Promise<Roll[]> {
+  ): Promise<(Roll | undefined)[]> {
     if (!payload) {
       throw new Error(errorMessages.unabledToFind);
     }
     const { userId: id } = payload;
-    if (isOpenTab) {
-      const rolls = await createQueryBuilder("roll")
-        .select("roll")
-        .from(Roll, "roll")
-        .leftJoinAndSelect("roll.participants", "participant")
-        .where("participant.userId = :id", { id })
-        .andWhere("participant.isActive = true")
-        .andWhere("roll.closingDate > :date", {
-          date: new Date(),
-        })
-        .getMany();
 
-      return rolls; // /!\ return filtered participant array : to modify
-    } else {
-      const rolls = await createQueryBuilder("roll")
-        .select("roll")
-        .from(Roll, "roll")
-        .leftJoinAndSelect("roll.participants", "participant")
-        .where("participant.userId = :id", { id })
-        .andWhere("participant.isActive = true")
-        .andWhere("roll.closingDate <= :date", {
-          date: new Date(),
-        })
-        .getMany();
+    const isRollClosingDateExpired = isOpenTab
+      ? "roll.closingDate > :date"
+      : "roll.closingDate <= :date";
 
-      return rolls;
+    const rollIds = await createQueryBuilder("roll")
+      .select(["roll"])
+      .from(Roll, "roll")
+      .leftJoinAndSelect("roll.participants", "participant")
+      .where("participant.userId = :id", { id })
+      .andWhere("participant.isActive = true")
+      .andWhere(isRollClosingDateExpired, {
+        date: new Date(),
+      })
+      .select(["roll.id"])
+      .getMany();
+
+    const rolls = await Promise.all(
+      rollIds.map((r) => getRollWithAllParticipants(r))
+    );
+
+    if (!rolls) {
+      throw new Error(errorMessages.unabledToFind);
     }
+    return rolls;
   }
 
   @Query(() => Roll, { nullable: true })
@@ -73,7 +71,6 @@ export class RollResolver {
       .leftJoinAndSelect("roll.participants", "participant")
       .where("roll.id = :id", { id })
       .getOne();
-
     return roll;
   }
 
