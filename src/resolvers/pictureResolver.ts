@@ -21,6 +21,8 @@ export class PictureResolver {
   @UseMiddleware(isAuth)
   async uploadPicture(
     @Arg("cloudinaryId") cloudinaryId: string,
+    @Arg("height") height: number,
+    @Arg("width") width: number,
     @Arg("rollId") rollId: number,
     @Ctx() { payload }: MyContext
   ): Promise<boolean> {
@@ -43,6 +45,8 @@ export class PictureResolver {
       await Picture.create({
         cloudinaryPublicId: cloudinaryId,
         participant: participant,
+        height: height,
+        width: width,
         roll: roll,
       }).save();
       return true;

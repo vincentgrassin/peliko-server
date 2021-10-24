@@ -22,6 +22,22 @@ export class Picture extends BaseEntity {
   @Column()
   cloudinaryPublicId!: string;
 
+  @Field({
+    nullable: true,
+  })
+  @Column({
+    nullable: true,
+  })
+  height: number;
+
+  @Field({
+    nullable: true,
+  })
+  @Column({
+    nullable: true,
+  })
+  width: number;
+
   @Field(() => Participant)
   @ManyToOne(() => Participant, (participant) => participant.pictures, {
     onUpdate: "CASCADE",
