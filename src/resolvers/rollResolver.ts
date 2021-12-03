@@ -14,7 +14,10 @@ import { User } from "../entities/User";
 import { errorMessages } from "../constants";
 import { MyContext } from "../MyContext";
 import { isAuth } from "../isAuth";
-import { getRollWithAllParticipants } from "./queriesHelpers";
+import {
+  getActiveInvitationRollsByUser,
+  getRollWithAllParticipants,
+} from "./queriesHelpers";
 
 // TO DO
 // createRoll /!\ le front doit faire un check d'emptiness sur les numero de tel
@@ -156,16 +159,9 @@ export class RollResolver {
       throw new Error(errorMessages.unabledToFind);
     }
     const { userId } = payload;
-    const rolls = await createQueryBuilder("roll")
-      .select("roll")
-      .from(Roll, "roll")
-      .leftJoinAndSelect("roll.participants", "participant")
-      .where("participant.userId = :userId", { userId })
-      .andWhere("participant.isActive = false")
-      .andWhere("roll.closingDate > :date", {
-        date: new Date(),
-      })
-      .getMany();
+    const rolls = await (
+      await getActiveInvitationRollsByUser(userId)
+    ).getMany();
     const invitationRolls: InvitationRollType[] = await Promise.all(
       rolls.map(async (roll) => {
         const participantAdmin = roll.participants.find((p) => p.isRollAdmin);
@@ -178,5 +174,19 @@ export class RollResolver {
     );
 
     return invitationRolls;
+  }
+
+  @Query(() => Number)
+  @UseMiddleware(isAuth)
+  async invitationNotificationCountByUser(
+    @Ctx() { payload }: MyContext
+  ): Promise<Number> {
+    if (!payload) {
+      throw new Error(errorMessages.unabledToFind);
+    }
+    const { userId } = payload;
+    const count = (await getActiveInvitationRollsByUser(userId)).getCount();
+
+    return count;
   }
 }
