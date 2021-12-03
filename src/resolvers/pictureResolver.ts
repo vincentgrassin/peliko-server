@@ -40,8 +40,10 @@ export class PictureResolver {
     const roll = await Roll.findOne(rollId);
 
     if (participant && roll) {
-      roll.remainingPictures = roll?.remainingPictures - 1;
+      roll.remainingPictures--;
       await roll.save();
+      participant.pictureCount++;
+      await participant.save();
       await Picture.create({
         cloudinaryPublicId: cloudinaryId,
         participant: participant,

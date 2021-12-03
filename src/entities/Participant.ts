@@ -78,6 +78,13 @@ export class Participant extends BaseEntity {
   })
   pictures: Picture[];
 
+  @Field()
+  @Column({
+    nullable: true,
+    default: 0,
+  })
+  pictureCount: number;
+
   @Field(() => String)
   @CreateDateColumn()
   createdAt: Date;

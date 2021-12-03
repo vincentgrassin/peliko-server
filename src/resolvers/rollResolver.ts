@@ -18,6 +18,7 @@ import {
   getActiveInvitationRollsByUser,
   getRollWithAllParticipants,
 } from "./queriesHelpers";
+import { Picture } from "../entities/Picture";
 
 // TO DO
 // createRoll /!\ le front doit faire un check d'emptiness sur les numero de tel
@@ -74,6 +75,10 @@ export class RollResolver {
       .leftJoinAndSelect("roll.participants", "participant")
       .where("roll.id = :id", { id })
       .getOne();
+
+    if (!roll) {
+      throw new Error(errorMessages.unabledToFind);
+    }
     return roll;
   }
 
