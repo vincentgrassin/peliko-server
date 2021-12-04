@@ -22,17 +22,6 @@ export class UserResolver {
     return User.find();
   }
 
-  @Query(() => User, { nullable: true })
-  async user(@Arg("id") id: number): Promise<User | undefined> {
-    const user = await createQueryBuilder("user")
-      .select("user")
-      .from(User, "user")
-      .where("user.id = :id", { id })
-      .getOne();
-
-    return user;
-  }
-
   @Mutation(() => LoginType)
   async login(
     @Arg("password") password: string,
@@ -90,6 +79,44 @@ export class UserResolver {
       accessToken: createAccessToken(newUser),
       refreshToken: createRefreshToken(newUser),
     };
+  }
+
+  @Query(() => User, { nullable: true })
+  @UseMiddleware(isAuth)
+  async getUserById(@Ctx() { payload }: MyContext): Promise<User | undefined> {
+    if (!payload) {
+      throw new Error(errorMessages.unabledToFind);
+    }
+    const { userId } = payload;
+    const user = await createQueryBuilder("user")
+      .select("user")
+      .from(User, "user")
+      .where("user.id = :userId", { userId })
+      .getOne();
+    return user;
+  }
+
+  @Mutation(() => Boolean)
+  @UseMiddleware(isAuth)
+  async updateUser(
+    @Arg("name") name: string,
+    @Arg("phoneNumber") phoneNumber: string,
+    @Arg("profilePicture") profilePictureId: string,
+    @Ctx() { payload }: MyContext
+  ): Promise<Boolean> {
+    if (!payload) {
+      throw new Error(errorMessages.unabledToFind);
+    }
+    const { userId } = payload;
+    const user = await User.findOne(userId);
+    if (user) {
+      user.avatarCloudinaryPublicId = profilePictureId;
+      user.phoneNumber = phoneNumber;
+      user.name = name;
+      const result = await user.save();
+      return !!result;
+    }
+    return false;
   }
 
   @Mutation(() => Boolean)
