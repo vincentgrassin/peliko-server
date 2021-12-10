@@ -11,7 +11,7 @@ export const getRollWithAllParticipants = async (r: Roll) => {
     .getOne();
 };
 
-export const getActiveInvitationRollsByUser = async (userId: string) => {
+export const getActiveInvitationRollsByUser = async (userId: number) => {
   return createQueryBuilder("roll")
     .select("roll")
     .from(Roll, "roll")

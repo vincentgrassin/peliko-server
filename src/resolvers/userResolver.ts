@@ -83,11 +83,7 @@ export class UserResolver {
       throw new Error(errorMessages.unauthorized);
     }
     const { userId } = payload;
-    const user = await createQueryBuilder("user")
-      .select("user")
-      .from(User, "user")
-      .where("user.id = :userId", { userId })
-      .getOne();
+    const user = await findUserById(userId);
     return user;
   }
 
