@@ -15,4 +15,5 @@ export const errorMessages = {
   wrongRollAccessCode: "peliko : Wrong access code",
   invalidPassword: "peliko : Invalid password",
   notAuthenticated: "peliko : Not authenticated",
+  unauthorized: "peliko : Not authorized",
 };

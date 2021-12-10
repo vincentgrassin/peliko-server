@@ -16,7 +16,7 @@ export class ParticipantResolver {
     @Ctx() { payload }: MyContext
   ): Promise<boolean> {
     if (!payload) {
-      throw new Error(errorMessages.unabledToFind);
+      throw new Error(errorMessages.unauthorized);
     }
     const { userId } = payload;
 
@@ -44,7 +44,7 @@ export class ParticipantResolver {
     @Ctx() { payload }: MyContext
   ): Promise<boolean> {
     if (!payload) {
-      throw new Error(errorMessages.unabledToFind);
+      throw new Error(errorMessages.unauthorized);
     }
     const { userId } = payload;
 

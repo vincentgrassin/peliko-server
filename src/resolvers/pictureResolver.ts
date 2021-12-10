@@ -27,7 +27,7 @@ export class PictureResolver {
     @Ctx() { payload }: MyContext
   ): Promise<boolean> {
     if (!payload) {
-      throw new Error(errorMessages.unabledToFind);
+      throw new Error(errorMessages.unauthorized);
     }
     const { userId } = payload;
     const participant = await createQueryBuilder("participant")
@@ -64,7 +64,7 @@ export class PictureResolver {
     @Ctx() { payload }: MyContext
   ): Promise<(Picture | undefined)[]> {
     if (!payload) {
-      throw new Error(errorMessages.unabledToFind);
+      throw new Error(errorMessages.unauthorized);
     }
     const pictures = await createQueryBuilder("picture")
       .select("picture")
@@ -84,7 +84,7 @@ export class PictureResolver {
     @Ctx() { payload }: MyContext
   ): Promise<{ count: number; pictures: Picture[] | undefined }> {
     if (!payload) {
-      throw new Error(errorMessages.unabledToFind);
+      throw new Error(errorMessages.unauthorized);
     }
     const pictures = await createQueryBuilder("picture")
       .select("picture")

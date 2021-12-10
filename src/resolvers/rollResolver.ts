@@ -36,7 +36,7 @@ export class RollResolver {
     @Ctx() { payload }: MyContext
   ): Promise<(Roll | undefined)[]> {
     if (!payload) {
-      throw new Error(errorMessages.unabledToFind);
+      throw new Error(errorMessages.unauthorized);
     }
     const { userId: id } = payload;
 
@@ -88,7 +88,7 @@ export class RollResolver {
     @Ctx() { payload }: MyContext
   ): Promise<Roll> {
     if (!payload) {
-      throw new Error(errorMessages.unabledToFind);
+      throw new Error(errorMessages.unauthorized);
     }
     const { userId } = payload;
     const userAdmin = await User.findOne(userId);
@@ -160,7 +160,7 @@ export class RollResolver {
     @Ctx() { payload }: MyContext
   ): Promise<InvitationRollType[]> {
     if (!payload) {
-      throw new Error(errorMessages.unabledToFind);
+      throw new Error(errorMessages.unauthorized);
     }
     const { userId } = payload;
     const rolls = await (
@@ -186,7 +186,7 @@ export class RollResolver {
     @Ctx() { payload }: MyContext
   ): Promise<Number> {
     if (!payload) {
-      throw new Error(errorMessages.unabledToFind);
+      throw new Error(errorMessages.unauthorized);
     }
     const { userId } = payload;
     const count = (await getActiveInvitationRollsByUser(userId)).getCount();

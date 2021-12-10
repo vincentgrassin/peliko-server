@@ -80,7 +80,7 @@ export class UserResolver {
   @UseMiddleware(isAuth)
   async getUserById(@Ctx() { payload }: MyContext): Promise<User | undefined> {
     if (!payload) {
-      throw new Error(errorMessages.unabledToFind);
+      throw new Error(errorMessages.unauthorized);
     }
     const { userId } = payload;
     const user = await createQueryBuilder("user")
@@ -100,7 +100,7 @@ export class UserResolver {
     @Ctx() { payload }: MyContext
   ): Promise<User | undefined> {
     if (!payload) {
-      throw new Error(errorMessages.unabledToFind);
+      throw new Error(errorMessages.unauthorized);
     }
     const { userId } = payload;
     const user = await User.findOne(userId);
