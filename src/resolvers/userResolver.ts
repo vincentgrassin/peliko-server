@@ -14,6 +14,7 @@ import { LoginType } from "../entities/objectType";
 import { MyContext } from "../MyContext";
 import { createAccessToken, createRefreshToken } from "../auth";
 import { isAuth } from "../isAuth";
+import { findUserByPhoneNumber } from "./queriesHelpers";
 
 @Resolver()
 export class UserResolver {
@@ -48,13 +49,7 @@ export class UserResolver {
     @Arg("phoneNumber") phoneNumber: string
   ): Promise<LoginType> {
     const user = { name, password, phoneNumber };
-    const existingUser = await createQueryBuilder("user")
-      .select("user")
-      .from(User, "user")
-      .where("user.phoneNumber = :phoneNumber", {
-        phoneNumber: user.phoneNumber,
-      })
-      .getOne();
+    const existingUser = await findUserByPhoneNumber(phoneNumber);
 
     if (existingUser) throw new Error(errorMessages.existingUser);
 
@@ -109,14 +104,22 @@ export class UserResolver {
     }
     const { userId } = payload;
     const user = await User.findOne(userId);
-    if (user) {
+    if (!user) {
+      throw new Error(errorMessages.unabledToFind);
+    }
+    let existingUser;
+    if (user.phoneNumber != phoneNumber) {
+      existingUser = await findUserByPhoneNumber(phoneNumber);
+    }
+    if (existingUser) {
+      throw new Error(errorMessages.existingUser);
+    } else {
       user.avatarCloudinaryPublicId = profilePictureId;
       user.phoneNumber = phoneNumber;
       user.name = name;
       const result = await user.save();
       return result;
     }
-    return undefined;
   }
 
   @Mutation(() => Boolean)

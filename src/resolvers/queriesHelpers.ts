@@ -1,5 +1,6 @@
 import { Roll } from "../entities/Roll";
 import { createQueryBuilder } from "typeorm";
+import { User } from "../entities/User";
 
 export const getRollWithAllParticipants = async (r: Roll) => {
   return await createQueryBuilder("roll")
@@ -20,4 +21,14 @@ export const getActiveInvitationRollsByUser = async (userId: string) => {
     .andWhere("roll.closingDate > :date", {
       date: new Date(),
     });
+};
+
+export const findUserByPhoneNumber = async (phoneNumber: string) => {
+  return await createQueryBuilder("user")
+    .select("user")
+    .from(User, "user")
+    .where("user.phoneNumber = :phoneNumber", {
+      phoneNumber,
+    })
+    .getOne();
 };
