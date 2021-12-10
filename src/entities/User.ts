@@ -24,7 +24,7 @@ export class User extends BaseEntity {
   password!: string;
 
   @Field()
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: "" })
   avatarCloudinaryPublicId?: string;
 
   @Field()

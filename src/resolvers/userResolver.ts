@@ -96,14 +96,14 @@ export class UserResolver {
     return user;
   }
 
-  @Mutation(() => Boolean)
+  @Mutation(() => User)
   @UseMiddleware(isAuth)
   async updateUser(
     @Arg("name") name: string,
     @Arg("phoneNumber") phoneNumber: string,
     @Arg("profilePicture") profilePictureId: string,
     @Ctx() { payload }: MyContext
-  ): Promise<Boolean> {
+  ): Promise<User | undefined> {
     if (!payload) {
       throw new Error(errorMessages.unabledToFind);
     }
@@ -114,9 +114,9 @@ export class UserResolver {
       user.phoneNumber = phoneNumber;
       user.name = name;
       const result = await user.save();
-      return !!result;
+      return result;
     }
-    return false;
+    return undefined;
   }
 
   @Mutation(() => Boolean)

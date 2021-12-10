@@ -18,7 +18,6 @@ import {
   getActiveInvitationRollsByUser,
   getRollWithAllParticipants,
 } from "./queriesHelpers";
-import { Picture } from "../entities/Picture";
 
 // TO DO
 // createRoll /!\ le front doit faire un check d'emptiness sur les numero de tel
