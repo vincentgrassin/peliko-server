@@ -32,3 +32,11 @@ export const findUserByPhoneNumber = async (phoneNumber: string) => {
     })
     .getOne();
 };
+
+export const findUserById = async (userId: number) => {
+  return await createQueryBuilder("user")
+    .select("user")
+    .from(User, "user")
+    .where("user.id = :userId", { userId })
+    .getOne();
+};

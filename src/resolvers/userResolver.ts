@@ -14,7 +14,7 @@ import { LoginType } from "../entities/objectType";
 import { MyContext } from "../MyContext";
 import { createAccessToken, createRefreshToken } from "../auth";
 import { isAuth } from "../isAuth";
-import { findUserByPhoneNumber } from "./queriesHelpers";
+import { findUserById, findUserByPhoneNumber } from "./queriesHelpers";
 
 @Resolver()
 export class UserResolver {
@@ -141,5 +141,25 @@ export class UserResolver {
       .increment({ id }, "tokenVersion", 1);
 
     return true;
+  }
+
+  @Query(() => [User], { nullable: true })
+  @UseMiddleware(isAuth)
+  async getUsersByIds(
+    @Arg("ids", () => [Number]) ids: number[],
+    @Ctx() { payload }: MyContext
+  ): Promise<User[] | undefined> {
+    console.log("hello");
+    if (!payload) {
+      throw new Error(errorMessages.unauthorized);
+    }
+    const users = await Promise.all(
+      ids.map(async (id) => {
+        const user = await findUserById(id);
+        return user;
+      })
+    );
+    const existingUsers = users.filter(Boolean) as User[];
+    return existingUsers;
   }
 }
