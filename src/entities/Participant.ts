@@ -7,6 +7,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  JoinColumn,
 } from "typeorm";
 import { Field, InputType, ObjectType } from "type-graphql";
 import { Roll } from "./Roll";
@@ -45,10 +46,11 @@ export class Participant extends BaseEntity {
   isRollAdmin: boolean;
 
   @Field()
-  @Column()
+  @Column({ name: "roll_id" })
   rollId: number;
 
   @Field(() => Roll)
+  @JoinColumn({ name: "roll_id" })
   @ManyToOne(() => Roll, (roll) => roll.participants, {
     onUpdate: "CASCADE",
     onDelete: "CASCADE",
@@ -59,10 +61,12 @@ export class Participant extends BaseEntity {
   @Field()
   @Column({
     nullable: true,
+    name: "user_id",
   })
   userId: number;
 
   @Field(() => User)
+  @JoinColumn({ name: "user_id" })
   @ManyToOne(() => User, (user) => user.participants, {
     onUpdate: "CASCADE",
     onDelete: "CASCADE",

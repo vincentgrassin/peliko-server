@@ -10,7 +10,7 @@ import {
 import { Participant } from "../entities/Participant";
 import { createQueryBuilder, getConnection } from "typeorm";
 import { errorMessages } from "../constants";
-import { LoginType } from "../entities/objectType";
+import { LoginInputViewModel } from "../viewModels/LoginInputViewModel";
 import { MyContext } from "../MyContext";
 import { createAccessToken, createRefreshToken } from "../auth";
 import { isAuth } from "../isAuth";
@@ -23,11 +23,11 @@ export class UserResolver {
     return User.find();
   }
 
-  @Mutation(() => LoginType)
+  @Mutation(() => LoginInputViewModel)
   async login(
     @Arg("password") password: string,
     @Arg("phoneNumber") phoneNumber: string
-  ): Promise<LoginType> {
+  ): Promise<LoginInputViewModel> {
     const user = await User.findOne({ where: { phoneNumber } });
     if (!user) {
       throw new Error(errorMessages.unrecognizedUser);
@@ -42,12 +42,12 @@ export class UserResolver {
     };
   }
 
-  @Mutation(() => LoginType)
+  @Mutation(() => LoginInputViewModel)
   async createUser(
     @Arg("name") name: string,
     @Arg("password") password: string,
     @Arg("phoneNumber") phoneNumber: string
-  ): Promise<LoginType> {
+  ): Promise<LoginInputViewModel> {
     const user = { name, password, phoneNumber };
     const existingUser = await findUserByPhoneNumber(phoneNumber);
 

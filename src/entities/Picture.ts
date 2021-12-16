@@ -6,6 +6,7 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  JoinColumn,
 } from "typeorm";
 import { Field, ObjectType } from "type-graphql";
 import { Participant } from "./Participant";
@@ -38,13 +39,20 @@ export class Picture extends BaseEntity {
   })
   width: number;
 
+  @Column({ name: "participant_id" })
+  participantId: number;
+
   @Field(() => Participant)
   @ManyToOne(() => Participant, (participant) => participant.pictures, {
     onUpdate: "CASCADE",
     onDelete: "CASCADE",
     orphanedRowAction: "delete",
   })
+  @JoinColumn({ name: "participant_id" })
   participant: Participant;
+
+  @Column({ name: "roll_id" })
+  rollId: number;
 
   @Field(() => Roll)
   @ManyToOne(() => Roll, (roll) => roll.pictures, {
@@ -52,6 +60,7 @@ export class Picture extends BaseEntity {
     onDelete: "CASCADE",
     orphanedRowAction: "delete",
   })
+  @JoinColumn({ name: "roll_id" })
   roll: Roll;
 
   @Field(() => String)

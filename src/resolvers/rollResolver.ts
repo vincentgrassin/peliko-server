@@ -1,5 +1,4 @@
 import { Roll, RollInputType } from "../entities/Roll";
-import { InvitationRollType } from "../entities/objectType";
 import {
   Resolver,
   Query,
@@ -18,8 +17,12 @@ import {
   getActiveInvitationRollsByUser,
   getRollWithAllParticipants,
 } from "./queriesHelpers";
+import { RollViewModel } from "../viewModels/RollViewModel";
+import { Picture } from "../entities/Picture";
+import { InvitationRollViewModel } from "../viewModels/InvitationRollViewModel";
 
 // TO DO
+// utiliser les viewmodels dans toutes les query (attention au field nullable dans @Field ?)
 // createRoll /!\ le front doit faire un check d'emptiness sur les numero de tel
 
 @Resolver()
@@ -29,17 +32,16 @@ export class RollResolver {
     return Roll.find();
   }
 
-  @Query(() => [Roll])
+  @Query(() => [RollViewModel])
   @UseMiddleware(isAuth)
   async rollsByUser(
     @Arg("isOpenTab") isOpenTab: boolean,
     @Ctx() { payload }: MyContext
-  ): Promise<(Roll | undefined)[]> {
+  ): Promise<(RollViewModel | undefined)[]> {
     if (!payload) {
       throw new Error(errorMessages.unauthorized);
     }
     const { userId: id } = payload;
-
     const isRollClosingDateExpired = isOpenTab
       ? "roll.closingDate > :date"
       : "roll.closingDate <= :date";
@@ -56,14 +58,29 @@ export class RollResolver {
       .select(["roll.id"])
       .getMany();
 
-    const rolls = await Promise.all(
-      rollIds.map((r) => getRollWithAllParticipants(r))
+    const rollViewModels = await Promise.all(
+      rollIds.map(async (id) => {
+        if (id) {
+          const roll = await getRollWithAllParticipants(id);
+          const coverPicture = await Picture.findOne({
+            where: { rollId: id },
+          });
+          if (roll) {
+            const rollViewModel: RollViewModel = roll;
+
+            rollViewModel.coverPictureId =
+              coverPicture && coverPicture.cloudinaryPublicId;
+            return rollViewModel;
+          }
+        }
+        return undefined;
+      })
     );
 
-    if (!rolls) {
+    if (!rollViewModels) {
       throw new Error(errorMessages.unabledToFind);
     }
-    return rolls;
+    return rollViewModels;
   }
 
   @Query(() => Roll, { nullable: true })
@@ -154,11 +171,11 @@ export class RollResolver {
     }
   }
 
-  @Query(() => [InvitationRollType])
+  @Query(() => [InvitationRollViewModel])
   @UseMiddleware(isAuth)
   async invitationRollsByUser(
     @Ctx() { payload }: MyContext
-  ): Promise<InvitationRollType[]> {
+  ): Promise<InvitationRollViewModel[]> {
     if (!payload) {
       throw new Error(errorMessages.unauthorized);
     }
@@ -166,7 +183,7 @@ export class RollResolver {
     const rolls = await (
       await getActiveInvitationRollsByUser(userId)
     ).getMany();
-    const invitationRolls: InvitationRollType[] = await Promise.all(
+    const invitationRolls: InvitationRollViewModel[] = await Promise.all(
       rolls.map(async (roll) => {
         const participantAdmin = roll.participants.find((p) => p.isRollAdmin);
         const userAdmin = await User.findOne(participantAdmin?.userId);
