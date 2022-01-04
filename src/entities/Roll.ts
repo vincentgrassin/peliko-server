@@ -8,7 +8,7 @@ import {
   OneToMany,
 } from "typeorm";
 import { Field, InputType, ObjectType } from "type-graphql";
-import { Participant, ParticipantInputType } from "./Participant";
+import { Participant } from "./Participant";
 import { defaultEntitiesValues } from "../constants";
 import { Picture } from "./Picture";
 
@@ -87,22 +87,4 @@ export class Roll extends BaseEntity {
   @Field()
   @UpdateDateColumn()
   updateDate: Date;
-}
-
-@InputType()
-export class RollInputType {
-  @Field()
-  name!: string;
-
-  @Field({ nullable: true })
-  description?: string;
-
-  @Field({ nullable: true })
-  deliveryType?: string;
-
-  @Field({ nullable: true })
-  closingDate: Date;
-
-  @Field(() => [ParticipantInputType], { nullable: true })
-  participants: ParticipantInputType[];
 }

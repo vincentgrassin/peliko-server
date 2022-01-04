@@ -1,4 +1,5 @@
 import { User } from "../entities/User";
+import { UserViewModel } from "../viewModels/UserViewModel";
 import {
   Resolver,
   Query,
@@ -18,8 +19,8 @@ import { findUserById, findUserByPhoneNumber } from "./queriesHelpers";
 
 @Resolver()
 export class UserResolver {
-  @Query(() => [User])
-  users(): Promise<User[]> {
+  @Query(() => [UserViewModel])
+  users(): Promise<UserViewModel[]> {
     return User.find();
   }
 
@@ -76,9 +77,11 @@ export class UserResolver {
     };
   }
 
-  @Query(() => User, { nullable: true })
+  @Query(() => UserViewModel, { nullable: true })
   @UseMiddleware(isAuth)
-  async getUserById(@Ctx() { payload }: MyContext): Promise<User | undefined> {
+  async getUserById(
+    @Ctx() { payload }: MyContext
+  ): Promise<UserViewModel | undefined> {
     if (!payload) {
       throw new Error(errorMessages.unauthorized);
     }
@@ -87,14 +90,14 @@ export class UserResolver {
     return user;
   }
 
-  @Mutation(() => User)
+  @Mutation(() => UserViewModel)
   @UseMiddleware(isAuth)
   async updateUser(
     @Arg("name") name: string,
     @Arg("phoneNumber") phoneNumber: string,
     @Arg("profilePicture") profilePictureId: string,
     @Ctx() { payload }: MyContext
-  ): Promise<User | undefined> {
+  ): Promise<UserViewModel | undefined> {
     if (!payload) {
       throw new Error(errorMessages.unauthorized);
     }
@@ -139,12 +142,12 @@ export class UserResolver {
     return true;
   }
 
-  @Query(() => [User], { nullable: true })
+  @Query(() => [UserViewModel], { nullable: true })
   @UseMiddleware(isAuth)
   async getUsersByIds(
     @Arg("ids", () => [Number]) ids: number[],
     @Ctx() { payload }: MyContext
-  ): Promise<User[] | undefined> {
+  ): Promise<UserViewModel[] | undefined> {
     console.log("hello");
     if (!payload) {
       throw new Error(errorMessages.unauthorized);

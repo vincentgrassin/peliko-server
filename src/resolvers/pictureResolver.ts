@@ -1,4 +1,8 @@
 import { Participant } from "../entities/Participant";
+import { PaginatedPicturesByRoll } from "../entities/objectType";
+import { PictureViewModel } from "../viewModels/PictureViewModel";
+import { Picture } from "../entities/Picture";
+import { Roll } from "../entities/Roll";
 import {
   Resolver,
   Arg,
@@ -8,12 +12,9 @@ import {
   Query,
 } from "type-graphql";
 import { createQueryBuilder } from "typeorm";
-import { Picture } from "../entities/Picture";
-import { Roll } from "../entities/Roll";
 import { errorMessages } from "../constants";
 import { isAuth } from "../isAuth";
 import { MyContext } from "../MyContext";
-import { PaginatedPicturesByRoll } from "../entities/objectType";
 
 @Resolver()
 export class PictureResolver {
@@ -57,12 +58,12 @@ export class PictureResolver {
     }
   }
 
-  @Query(() => [Picture])
+  @Query(() => [PictureViewModel])
   @UseMiddleware(isAuth)
   async getPicturesByRoll(
     @Arg("rollId") rollId: number,
     @Ctx() { payload }: MyContext
-  ): Promise<(Picture | undefined)[]> {
+  ): Promise<(PictureViewModel | undefined)[]> {
     if (!payload) {
       throw new Error(errorMessages.unauthorized);
     }

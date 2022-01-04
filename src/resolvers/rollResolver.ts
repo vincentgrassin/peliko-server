@@ -1,4 +1,10 @@
-import { Roll, RollInputType } from "../entities/Roll";
+import { Roll } from "../entities/Roll";
+import { RollInputViewModel } from "../viewModels/RollInputViewModel";
+import { InvitationRollViewModel } from "../viewModels/InvitationRollViewModel";
+import { RollViewModel } from "../viewModels/RollViewModel";
+import { Picture } from "../entities/Picture";
+import { Participant } from "../entities/Participant";
+import { User } from "../entities/User";
 import {
   Resolver,
   Query,
@@ -7,9 +13,7 @@ import {
   Ctx,
   UseMiddleware,
 } from "type-graphql";
-import { Participant } from "../entities/Participant";
 import { createQueryBuilder } from "typeorm";
-import { User } from "../entities/User";
 import { errorMessages } from "../constants";
 import { MyContext } from "../MyContext";
 import { isAuth } from "../isAuth";
@@ -17,9 +21,6 @@ import {
   getActiveInvitationRollsByUser,
   getRollWithAllParticipants,
 } from "./queriesHelpers";
-import { RollViewModel } from "../viewModels/RollViewModel";
-import { Picture } from "../entities/Picture";
-import { InvitationRollViewModel } from "../viewModels/InvitationRollViewModel";
 
 // TO DO
 // utiliser les viewmodels dans toutes les query (attention au field nullable dans @Field ?)
@@ -27,8 +28,8 @@ import { InvitationRollViewModel } from "../viewModels/InvitationRollViewModel";
 
 @Resolver()
 export class RollResolver {
-  @Query(() => [Roll]) // graph ql type
-  rolls(): Promise<Roll[]> {
+  @Query(() => [RollViewModel]) // graph ql type
+  rolls(): Promise<RollViewModel[]> {
     return Roll.find();
   }
 
@@ -83,8 +84,8 @@ export class RollResolver {
     return rollViewModels;
   }
 
-  @Query(() => Roll, { nullable: true })
-  async roll(@Arg("id") id: number): Promise<Roll | undefined> {
+  @Query(() => RollViewModel, { nullable: true })
+  async roll(@Arg("id") id: number): Promise<RollViewModel | undefined> {
     const roll = await createQueryBuilder("roll")
       .select("roll")
       .from(Roll, "roll")
@@ -98,12 +99,12 @@ export class RollResolver {
     return roll;
   }
 
-  @Mutation(() => Roll)
+  @Mutation(() => RollViewModel)
   @UseMiddleware(isAuth)
   async createRoll(
-    @Arg("rollData") roll: RollInputType,
+    @Arg("rollData") roll: RollInputViewModel,
     @Ctx() { payload }: MyContext
-  ): Promise<Roll> {
+  ): Promise<RollViewModel> {
     if (!payload) {
       throw new Error(errorMessages.unauthorized);
     }
@@ -143,11 +144,11 @@ export class RollResolver {
     return newRoll;
   }
 
-  @Mutation(() => Roll, { nullable: true })
+  @Mutation(() => RollViewModel, { nullable: true })
   async updateRoll(
     @Arg("id") id: number,
-    @Arg("rollData") rollData: RollInputType
-  ): Promise<Roll | undefined> {
+    @Arg("rollData") rollData: RollInputViewModel
+  ): Promise<RollViewModel | undefined> {
     const roll = await Roll.findOne(id);
     if (!roll) {
       return undefined;

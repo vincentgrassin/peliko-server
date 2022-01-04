@@ -97,16 +97,3 @@ export class Participant extends BaseEntity {
   @UpdateDateColumn()
   updatedAt: Date;
 }
-
-@InputType()
-export class ParticipantInputType {
-  @Field()
-  phoneNumber!: string;
-
-  @Field({ nullable: true })
-  name?: string;
-
-  isActive?: boolean;
-
-  isRollAdmin?: boolean;
-}
