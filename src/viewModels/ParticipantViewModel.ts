@@ -25,7 +25,7 @@ export class ParticipantViewModel {
   @Field(() => RollViewModel)
   roll: RollViewModel;
 
-  @Field()
+  @Field({ nullable: true })
   userId: number;
 
   @Field(() => UserViewModel)
