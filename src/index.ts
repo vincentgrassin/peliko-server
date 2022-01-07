@@ -19,7 +19,7 @@ import bodyParser from "body-parser";
 
 const main = async () => {
   console.log("main started");
-  const connection = await createConnection({
+  await createConnection({
     type: "postgres",
     entities: [Roll, Participant, User, Picture],
     database: process.env.DB_NAME,

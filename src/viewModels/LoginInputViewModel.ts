@@ -1,4 +1,3 @@
-import { Roll } from "../entities/Roll";
 import { Field, ObjectType } from "type-graphql";
 
 @ObjectType()

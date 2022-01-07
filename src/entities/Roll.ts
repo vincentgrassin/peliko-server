@@ -7,7 +7,7 @@ import {
   UpdateDateColumn,
   OneToMany,
 } from "typeorm";
-import { Field, InputType, ObjectType } from "type-graphql";
+import { Field, ObjectType } from "type-graphql";
 import { Participant } from "./Participant";
 import { defaultEntitiesValues } from "../constants";
 import { Picture } from "./Picture";

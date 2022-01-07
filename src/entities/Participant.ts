@@ -9,7 +9,7 @@ import {
   OneToMany,
   JoinColumn,
 } from "typeorm";
-import { Field, InputType, ObjectType } from "type-graphql";
+import { Field, ObjectType } from "type-graphql";
 import { Roll } from "./Roll";
 import { User } from "./User";
 import { defaultEntitiesValues } from "../constants";
