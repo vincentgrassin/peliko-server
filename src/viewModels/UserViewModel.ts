@@ -17,8 +17,8 @@ export class UserViewModel {
   phoneNumber: string;
 
   @Field(() => String)
-  createdAt: Date;
+  createdAt?: Date;
 
   @Field(() => String)
-  updatedAt: Date;
+  updatedAt?: Date;
 }

@@ -1,6 +1,5 @@
 import { Participant } from "../entities/Participant";
 import { PaginatedPicturesByRoll } from "../entities/objectType";
-import { PictureViewModel } from "../viewModels/PictureViewModel";
 import { Picture } from "../entities/Picture";
 import { Roll } from "../entities/Roll";
 import {
@@ -15,6 +14,8 @@ import { createQueryBuilder } from "typeorm";
 import { errorMessages } from "../constants";
 import { isAuth } from "../isAuth";
 import { MyContext } from "../MyContext";
+import { User } from "../entities/User";
+import { PictureGalleryViewModel } from "../viewModels/PictureGalleryViewModel";
 
 @Resolver()
 export class PictureResolver {
@@ -58,12 +59,12 @@ export class PictureResolver {
     }
   }
 
-  @Query(() => [PictureViewModel])
+  @Query(() => [PictureGalleryViewModel])
   @UseMiddleware(isAuth)
   async getPicturesByRoll(
     @Arg("rollId") rollId: number,
     @Ctx() { payload }: MyContext
-  ): Promise<(PictureViewModel | undefined)[]> {
+  ): Promise<(PictureGalleryViewModel | undefined)[]> {
     if (!payload) {
       throw new Error(errorMessages.unauthorized);
     }
@@ -72,8 +73,29 @@ export class PictureResolver {
       .from(Picture, "picture")
       .where("picture.rollId = :rollId", { rollId })
       .getMany();
-
-    return pictures;
+    const picturesWithUserInfo = await Promise.all(
+      pictures.map(async (picture) => {
+        const participant = await createQueryBuilder("participant")
+          .select("participant")
+          .from(Participant, "participant")
+          .leftJoinAndSelect("participant.user", "user")
+          .where("participant.id = :id", { id: picture.participantId })
+          .getOne();
+        const user = await User.findOne(participant?.userId);
+        if (user) {
+          return {
+            ...picture,
+            user: {
+              id: user.id,
+              name: user.name,
+              phoneNumber: user.phoneNumber,
+            },
+          };
+        }
+        return { ...picture, user: undefined };
+      })
+    );
+    return picturesWithUserInfo;
   }
 
   @Query(() => PaginatedPicturesByRoll)
