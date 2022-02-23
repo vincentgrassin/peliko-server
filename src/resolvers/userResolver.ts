@@ -16,6 +16,7 @@ import { MyContext } from "../MyContext";
 import { createAccessToken, createRefreshToken } from "../auth";
 import { isAuth } from "../isAuth";
 import { findUserById, findUserByPhoneNumber } from "./queriesHelpers";
+import { AuthenticationError } from "apollo-server-express";
 
 @Resolver()
 export class UserResolver {
@@ -54,9 +55,6 @@ export class UserResolver {
 
     if (existingUser) throw new Error(errorMessages.existingUser);
 
-    // salt + hash
-    // peut etre bouger le type number de userId a int ? pour regler l'histoire des floats
-    // peut être type number est incorrect ???
     const newUser = await User.create({
       ...user,
     }).save();
@@ -83,7 +81,7 @@ export class UserResolver {
     @Ctx() { payload }: MyContext
   ): Promise<UserViewModel | undefined> {
     if (!payload) {
-      throw new Error(errorMessages.unauthorized);
+      throw new AuthenticationError(errorMessages.unauthorized);
     }
     const { userId } = payload;
     const user = await findUserById(userId);
@@ -99,7 +97,7 @@ export class UserResolver {
     @Ctx() { payload }: MyContext
   ): Promise<UserViewModel | undefined> {
     if (!payload) {
-      throw new Error(errorMessages.unauthorized);
+      throw new AuthenticationError(errorMessages.unauthorized);
     }
     const { userId } = payload;
     const user = await User.findOne(userId);
@@ -148,9 +146,8 @@ export class UserResolver {
     @Arg("ids", () => [Number]) ids: number[],
     @Ctx() { payload }: MyContext
   ): Promise<UserViewModel[] | undefined> {
-    console.log("hello");
     if (!payload) {
-      throw new Error(errorMessages.unauthorized);
+      throw new AuthenticationError(errorMessages.unauthorized);
     }
     const users = await Promise.all(
       ids.map(async (id) => {

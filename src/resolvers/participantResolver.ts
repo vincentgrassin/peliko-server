@@ -5,6 +5,7 @@ import { createQueryBuilder } from "typeorm";
 import { errorMessages } from "../constants";
 import { isAuth } from "../isAuth";
 import { MyContext } from "../MyContext";
+import { AuthenticationError } from "apollo-server-express";
 
 @Resolver()
 export class ParticipantResolver {
@@ -16,7 +17,7 @@ export class ParticipantResolver {
     @Ctx() { payload }: MyContext
   ): Promise<boolean> {
     if (!payload) {
-      throw new Error(errorMessages.unauthorized);
+      throw new AuthenticationError(errorMessages.unauthorized);
     }
     const { userId } = payload;
 
@@ -44,7 +45,7 @@ export class ParticipantResolver {
     @Ctx() { payload }: MyContext
   ): Promise<boolean> {
     if (!payload) {
-      throw new Error(errorMessages.unauthorized);
+      throw new AuthenticationError(errorMessages.unauthorized);
     }
     const { userId } = payload;
 

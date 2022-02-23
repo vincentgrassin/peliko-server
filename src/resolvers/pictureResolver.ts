@@ -16,6 +16,7 @@ import { isAuth } from "../isAuth";
 import { MyContext } from "../MyContext";
 import { User } from "../entities/User";
 import { PictureGalleryViewModel } from "../viewModels/PictureGalleryViewModel";
+import { AuthenticationError } from "apollo-server-express";
 
 @Resolver()
 export class PictureResolver {
@@ -29,7 +30,7 @@ export class PictureResolver {
     @Ctx() { payload }: MyContext
   ): Promise<boolean> {
     if (!payload) {
-      throw new Error(errorMessages.unauthorized);
+      throw new AuthenticationError(errorMessages.unauthorized);
     }
     const { userId } = payload;
     const participant = await createQueryBuilder("participant")
@@ -66,7 +67,7 @@ export class PictureResolver {
     @Ctx() { payload }: MyContext
   ): Promise<(PictureGalleryViewModel | undefined)[]> {
     if (!payload) {
-      throw new Error(errorMessages.unauthorized);
+      throw new AuthenticationError(errorMessages.unauthorized);
     }
     const pictures = await createQueryBuilder("picture")
       .select("picture")
@@ -107,7 +108,7 @@ export class PictureResolver {
     @Ctx() { payload }: MyContext
   ): Promise<{ count: number; pictures: Picture[] | undefined }> {
     if (!payload) {
-      throw new Error(errorMessages.unauthorized);
+      throw new AuthenticationError(errorMessages.unauthorized);
     }
     const pictures = await createQueryBuilder("picture")
       .select("picture")

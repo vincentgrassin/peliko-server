@@ -21,6 +21,7 @@ import {
   getActiveInvitationRollsByUser,
   getRollWithAllParticipants,
 } from "./queriesHelpers";
+import { AuthenticationError } from "apollo-server-express";
 
 // TO DO
 // utiliser les viewmodels dans toutes les query (attention au field nullable dans @Field ?)
@@ -40,7 +41,7 @@ export class RollResolver {
     @Ctx() { payload }: MyContext
   ): Promise<(RollViewModel | undefined)[]> {
     if (!payload) {
-      throw new Error(errorMessages.unauthorized);
+      throw new AuthenticationError(errorMessages.unauthorized);
     }
     const { userId: id } = payload;
     const isRollClosingDateExpired = isOpenTab
@@ -106,7 +107,7 @@ export class RollResolver {
     @Ctx() { payload }: MyContext
   ): Promise<RollViewModel> {
     if (!payload) {
-      throw new Error(errorMessages.unauthorized);
+      throw new AuthenticationError(errorMessages.unauthorized);
     }
     const { userId } = payload;
     const userAdmin = await User.findOne(userId);
@@ -178,7 +179,7 @@ export class RollResolver {
     @Ctx() { payload }: MyContext
   ): Promise<InvitationRollViewModel[]> {
     if (!payload) {
-      throw new Error(errorMessages.unauthorized);
+      throw new AuthenticationError(errorMessages.unauthorized);
     }
     const { userId } = payload;
     const rolls = await (
@@ -204,7 +205,7 @@ export class RollResolver {
     @Ctx() { payload }: MyContext
   ): Promise<Number> {
     if (!payload) {
-      throw new Error(errorMessages.unauthorized);
+      throw new AuthenticationError(errorMessages.unauthorized);
     }
     const { userId } = payload;
     const count = (await getActiveInvitationRollsByUser(userId)).getCount();
