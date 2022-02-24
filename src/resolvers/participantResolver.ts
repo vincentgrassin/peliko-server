@@ -6,6 +6,7 @@ import { errorMessages } from "../constants";
 import { isAuth } from "../isAuth";
 import { MyContext } from "../MyContext";
 import { AuthenticationError } from "apollo-server-express";
+import { throwDatabaseError } from "./queriesHelpers";
 
 @Resolver()
 export class ParticipantResolver {
@@ -34,7 +35,9 @@ export class ParticipantResolver {
     if (accessCode !== roll?.accessCode)
       throw new Error(errorMessages.wrongRollAccessCode);
     participant.isActive = true;
-    const participantUpdated = await participant.save();
+    const participantUpdated = await participant
+      .save()
+      .catch(throwDatabaseError);
     return !!participantUpdated;
   }
 

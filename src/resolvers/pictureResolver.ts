@@ -17,6 +17,7 @@ import { MyContext } from "../MyContext";
 import { User } from "../entities/User";
 import { PictureGalleryViewModel } from "../viewModels/PictureGalleryViewModel";
 import { AuthenticationError } from "apollo-server-express";
+import { throwDatabaseError } from "./queriesHelpers";
 
 @Resolver()
 export class PictureResolver {
@@ -44,16 +45,18 @@ export class PictureResolver {
 
     if (participant && roll) {
       roll.remainingPictures--;
-      await roll.save();
+      await roll.save().catch(throwDatabaseError);
       participant.pictureCount++;
-      await participant.save();
+      await participant.save().catch(throwDatabaseError);
       await Picture.create({
         cloudinaryPublicId: cloudinaryId,
         participant: participant,
         height: height,
         width: width,
         roll: roll,
-      }).save();
+      })
+        .save()
+        .catch(throwDatabaseError);
       return true;
     } else {
       throw new Error(errorMessages.pictureUploadFailed);

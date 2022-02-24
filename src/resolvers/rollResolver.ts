@@ -20,6 +20,7 @@ import { isAuth } from "../isAuth";
 import {
   getActiveInvitationRollsByUser,
   getRollWithAllParticipants,
+  throwDatabaseError,
 } from "./queriesHelpers";
 import { AuthenticationError } from "apollo-server-express";
 
@@ -141,7 +142,9 @@ export class RollResolver {
     const newRoll = await Roll.create({
       ...roll,
       participants: participants,
-    }).save();
+    })
+      .save()
+      .catch(throwDatabaseError);
     return newRoll;
   }
 
@@ -158,7 +161,7 @@ export class RollResolver {
       rollData.participants.map(async (p) => Participant.create(p))
     );
     roll.participants = participants;
-    await roll.save();
+    await roll.save().catch(throwDatabaseError);
 
     return roll;
   }

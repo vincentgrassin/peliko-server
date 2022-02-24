@@ -15,7 +15,11 @@ import { LoginInputViewModel } from "../viewModels/LoginInputViewModel";
 import { MyContext } from "../MyContext";
 import { createAccessToken, createRefreshToken } from "../auth";
 import { isAuth } from "../isAuth";
-import { findUserById, findUserByPhoneNumber } from "./queriesHelpers";
+import {
+  findUserById,
+  findUserByPhoneNumber,
+  throwDatabaseError,
+} from "./queriesHelpers";
 import { AuthenticationError } from "apollo-server-express";
 
 @Resolver()
@@ -57,7 +61,9 @@ export class UserResolver {
 
     const newUser = await User.create({
       ...user,
-    }).save();
+    })
+      .save()
+      .catch(throwDatabaseError);
     const participations = await createQueryBuilder("participant")
       .select("participant")
       .from(Participant, "participant")
@@ -67,7 +73,7 @@ export class UserResolver {
       .getMany();
     participations.forEach((p) => {
       p.userId = newUser.id;
-      p.save();
+      p.save().catch(throwDatabaseError);
     });
     return {
       accessToken: createAccessToken(newUser),
@@ -114,7 +120,7 @@ export class UserResolver {
       user.avatarCloudinaryPublicId = profilePictureId;
       user.phoneNumber = phoneNumber;
       user.name = name;
-      const result = await user.save();
+      const result = await user.save().catch(throwDatabaseError);
       return result;
     }
   }

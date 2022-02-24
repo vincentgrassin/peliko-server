@@ -16,4 +16,5 @@ export const errorMessages = {
   invalidPassword: "peliko : Invalid password",
   notAuthenticated: "peliko : Not authenticated",
   unauthorized: "peliko : Not authorized",
+  databaseError: "peliko : Database error",
 };

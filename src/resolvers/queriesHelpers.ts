@@ -1,6 +1,7 @@
 import { Roll } from "../entities/Roll";
 import { createQueryBuilder } from "typeorm";
 import { User } from "../entities/User";
+import { errorMessages } from "../constants";
 
 export const getRollWithAllParticipants = async (r: Roll) => {
   return await createQueryBuilder("roll")
@@ -39,4 +40,8 @@ export const findUserById = async (userId: number) => {
     .from(User, "user")
     .where("user.id = :userId", { userId })
     .getOne();
+};
+
+export const throwDatabaseError = (e: any) => {
+  throw new Error(errorMessages.databaseError);
 };
