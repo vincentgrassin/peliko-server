@@ -10,7 +10,7 @@ import {
 } from "type-graphql";
 import { Participant } from "../entities/Participant";
 import { createQueryBuilder, getConnection } from "typeorm";
-import { errorMessages } from "../constants";
+import { errorMessages, SALT_ROUNDS } from "../constants";
 import { LoginInputViewModel } from "../viewModels/LoginInputViewModel";
 import { MyContext } from "../MyContext";
 import { createAccessToken, createRefreshToken } from "../auth";
@@ -21,7 +21,7 @@ import {
   throwDatabaseError,
 } from "./queriesHelpers";
 import { AuthenticationError } from "apollo-server-express";
-
+import bcrypt from "bcrypt";
 @Resolver()
 export class UserResolver {
   @Query(() => [UserViewModel])
@@ -38,7 +38,7 @@ export class UserResolver {
     if (!user) {
       throw new Error(errorMessages.unrecognizedUser);
     }
-    if (user.password !== password) {
+    if (!bcrypt.compareSync(password, user.password)) {
       throw new Error(errorMessages.invalidPassword);
     }
 
@@ -59,8 +59,10 @@ export class UserResolver {
 
     if (existingUser) throw new Error(errorMessages.existingUser);
 
+    const hash = bcrypt.hashSync(password, SALT_ROUNDS);
     const newUser = await User.create({
       ...user,
+      password: hash,
     })
       .save()
       .catch(throwDatabaseError);

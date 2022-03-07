@@ -18,3 +18,5 @@ export const errorMessages = {
   unauthorized: "peliko : Not authorized",
   databaseError: "peliko : Database error",
 };
+
+export const SALT_ROUNDS = 10;
