@@ -42,6 +42,6 @@ export const findUserById = async (userId: number) => {
     .getOne();
 };
 
-export const throwDatabaseError = (e: any) => {
+export const throwDatabaseError = () => {
   throw new Error(errorMessages.databaseError);
 };
