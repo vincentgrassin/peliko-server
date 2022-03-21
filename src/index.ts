@@ -5,29 +5,18 @@ import express from "express";
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
 import { createConnection } from "typeorm";
-import { Roll } from "./entities/Roll";
 import { RollResolver } from "./resolvers/rollResolver";
-import { Participant } from "./entities/Participant";
 import { ParticipantResolver } from "./resolvers/participantResolver";
 import { User } from "./entities/User";
 import { UserResolver } from "./resolvers/userResolver";
-import { Picture } from "./entities/Picture";
 import { PictureResolver } from "./resolvers/pictureResolver";
 import { verify } from "jsonwebtoken";
 import { createAccessToken, createRefreshToken } from "./auth";
 import bodyParser from "body-parser";
 
 const main = async () => {
-  console.log("main started");
-  await createConnection({
-    type: "postgres",
-    entities: [Roll, Participant, User, Picture],
-    database: process.env.DB_NAME,
-    username: process.env.DB_USERNAME,
-    password: process.env.DB_PASSWORD,
-    logging: true,
-    synchronize: true,
-  });
+  const ormConfig = require("./ormConfig");
+  await createConnection(ormConfig);
 
   const app = express();
 
@@ -61,8 +50,8 @@ const main = async () => {
     });
   });
 
-  app.listen(4000, () => {
-    console.log("server started");
+  app.listen(process.env.PORT || 4000, () => {
+    console.log("server started on ", process.env.PORT || 4000);
   });
 
   const apolloServer = new ApolloServer({
