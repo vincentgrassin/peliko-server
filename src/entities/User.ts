@@ -32,6 +32,10 @@ export class User extends BaseEntity {
   phoneNumber!: string;
 
   @Field()
+  @Column({ nullable: true })
+  pushNotificationToken: string;
+
+  @Field()
   @Column("int", { default: 0 })
   tokenVersion: number;
 

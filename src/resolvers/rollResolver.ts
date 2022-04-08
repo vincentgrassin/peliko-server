@@ -14,7 +14,7 @@ import {
   UseMiddleware,
 } from "type-graphql";
 import { createQueryBuilder } from "typeorm";
-import { errorMessages } from "../constants";
+import { errorMessages, pushMessages } from "../constants";
 import { MyContext } from "../MyContext";
 import { isAuth } from "../isAuth";
 import {
@@ -23,6 +23,7 @@ import {
   throwDatabaseError,
 } from "./queriesHelpers";
 import { AuthenticationError } from "apollo-server-express";
+import { sendPushNotifications } from "../push";
 
 // TO DO
 // utiliser les viewmodels dans toutes les query (attention au field nullable dans @Field ?)
@@ -125,6 +126,7 @@ export class RollResolver {
       },
     ];
 
+    const pushTokens: string[] = [];
     const participants = await Promise.all(
       roll.participants.map(async (p) => {
         const user = await createQueryBuilder("user")
@@ -134,17 +136,28 @@ export class RollResolver {
             phoneNumber: p.phoneNumber,
           })
           .getOne();
+        if (user?.pushNotificationToken) {
+          pushTokens.push(user?.pushNotificationToken);
+        }
 
         return Participant.create({ ...p, userId: user?.id });
       })
     );
-
     const newRoll = await Roll.create({
       ...roll,
       participants: participants,
     })
       .save()
       .catch(throwDatabaseError);
+
+    if (pushTokens.length > 0) {
+      await sendPushNotifications(pushTokens, {
+        title: pushMessages.newRollTitle,
+        body: pushMessages.newRollBody
+          .replace("{0}", roll.name)
+          .replace("{1}", roll.closingDate.toString()),
+      });
+    }
     return newRoll;
   }
 

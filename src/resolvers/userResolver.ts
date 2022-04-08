@@ -166,4 +166,24 @@ export class UserResolver {
     const existingUsers = users.filter(Boolean) as User[];
     return existingUsers;
   }
+
+  @Mutation(() => Boolean)
+  @UseMiddleware(isAuth)
+  async updateUserPushToken(
+    @Arg("pushToken") pushToken: string,
+    @Ctx() { payload }: MyContext
+  ): Promise<Boolean> {
+    if (!payload) {
+      throw new AuthenticationError(errorMessages.unauthorized);
+    }
+    const { userId } = payload;
+    const user = await User.findOne(userId);
+    if (user && pushToken !== user?.pushNotificationToken) {
+      user.pushNotificationToken = pushToken;
+      await user.save().catch(throwDatabaseError);
+      return true;
+    }
+
+    return false;
+  }
 }

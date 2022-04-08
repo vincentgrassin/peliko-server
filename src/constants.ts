@@ -19,4 +19,9 @@ export const errorMessages = {
   databaseError: "peliko : Database error",
 };
 
+export const pushMessages = {
+  newRollTitle: `Nouvelle pellicule`,
+  newRollBody: `Le Peliko {0} est ouvert jusqu'au {1}`,
+};
+
 export const SALT_ROUNDS = 10;
