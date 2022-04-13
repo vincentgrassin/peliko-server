@@ -25,7 +25,6 @@ export const sendPushNotifications = async (
   // and to compress them (notifications with similar content will get
   // compressed).
   let chunks = expo.chunkPushNotifications(messages);
-  console.log({ chunks }, chunks[0]);
   let tickets: any[] = [];
   const sendNotifications = async () => {
     // Send the chunks to the Expo push notification service. There are

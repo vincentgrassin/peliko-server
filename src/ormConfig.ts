@@ -8,7 +8,7 @@ const myOrmConfig: ConnectionOptions = {
   password: process.env.DB_PASSWORD,
   entities: ["dist/entities/**/*.js"],
   migrations: ["dist/migrations/**/*.js"],
-  logging: true,
+  // logging: true,
   migrationsRun: true,
   cli: {
     migrationsDir: "./src/migrations",

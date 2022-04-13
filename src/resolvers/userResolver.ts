@@ -34,6 +34,7 @@ export class UserResolver {
     @Arg("password") password: string,
     @Arg("phoneNumber") phoneNumber: string
   ): Promise<LoginInputViewModel> {
+    console.log(phoneNumber);
     const user = await User.findOne({ where: { phoneNumber } });
     if (!user) {
       throw new Error(errorMessages.unrecognizedUser);
