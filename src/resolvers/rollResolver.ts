@@ -24,6 +24,7 @@ import {
 } from "./queriesHelpers";
 import { AuthenticationError } from "apollo-server-express";
 import { sendPushNotifications } from "../push";
+import { getParticipantsWithoutDuplicatesOrAdmin } from "../helpers/dataValidationHelper";
 
 // TO DO
 // utiliser les viewmodels dans toutes les query (attention au field nullable dans @Field ?)
@@ -117,8 +118,13 @@ export class RollResolver {
       throw new Error(errorMessages.unrecognizedUser);
     }
 
+    const cleanedParticipants = getParticipantsWithoutDuplicatesOrAdmin(
+      roll.participants,
+      userAdmin
+    );
+
     roll.participants = [
-      ...roll.participants,
+      ...cleanedParticipants,
       {
         phoneNumber: userAdmin?.phoneNumber,
         isActive: true,
